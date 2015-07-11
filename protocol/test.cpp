@@ -15,6 +15,8 @@ int main() {
 	info.reading = 13;
 	info.stat = 2;
 	data.addSensor(info);
+	info.id = 1;
+	data.addSensor(info);
 	const unsigned char* packet = data.toPacket();
 	std::cout << std::endl;
 	for(int i=0;i<2 + data.getSensorNum() * 4;++i) {

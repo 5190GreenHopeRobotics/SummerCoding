@@ -291,8 +291,8 @@ const unsigned char* sensorData::toPacket() {
 		packet[((i+1)*2) + 1] = sensors[i].stat;
 	}
 	for (int i = 0; i < sensorNum; ++i) {
-		packet[4+i*2] = sensors[i].id;
-		packet[5+i*2] = sensors[i].reading;
+		packet[(2 + (2*sensorNum)) + (i *2)] = sensors[i].id;
+		packet[3 + (2*sensorNum) + (i*2)] = sensors[i].reading;
 	}
 	return packet;
 }
