@@ -283,27 +283,18 @@ const sensorInfo* sensorData::getSensors() const {
 }
 
 const unsigned char* sensorData::toPacket() {
-	char* packet = new char[2 + 4 * sensorNum];
+	unsigned char* packet = new unsigned char[2 + 4 * sensorNum];
 	packet[0] = arduinoStat;
 	packet[1] = sensorNum;
-	char* temp = nullptr;
 	for (int i = 0; i < sensorNum; ++i) {
-		temp = new char[2];
-		temp[0] = sensors[i].id;
-		temp[1] = sensors[i].stat;
-		std::cout << "temp[0]:" << (int)temp[0] << " temp[1]:" << (int)temp[1] << std::endl;
-		strcat(packet,temp);
-		delete temp;
+		packet[(i+1)*2] = sensors[i].id;
+		packet[((i+1)*2) + 1] = sensors[i].stat;
 	}
 	for (int i = 0; i < sensorNum; ++i) {
-		temp = new char[2];
-		temp[0] = sensors[i].id;
-		temp[1] = sensors[i].reading;
-		std::cout << "temp[0]:" << (int)temp[0] << " temp[1]:" << (int)temp[1] << std::endl;
-		strcat(packet,temp);
-		delete temp;
+		packet[4+i*2] = sensors[i].id;
+		packet[5+i*2] = sensors[i].reading;
 	}
-	return (const unsigned char*) packet;
+	return packet;
 }
 
 sensorData::~sensorData() {
