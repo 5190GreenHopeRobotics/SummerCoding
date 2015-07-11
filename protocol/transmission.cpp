@@ -289,16 +289,16 @@ const unsigned char* sensorData::toPacket() {
 	char* temp = nullptr;
 	for (int i = 0; i < sensorNum; ++i) {
 		temp = new char[2];
-		temp[0] = 0;
-		temp[1] = 1;
+		temp[0] = sensors[i].id;
+		temp[1] = sensors[i].stat;
 		std::cout << "temp[0]:" << (int)temp[0] << " temp[1]:" << (int)temp[1] << std::endl;
 		strcat(packet,temp);
 		delete temp;
 	}
 	for (int i = 0; i < sensorNum; ++i) {
 		temp = new char[2];
-		temp[0] = 0;
-		temp[1] = 13;
+		temp[0] = sensors[i].id;
+		temp[1] = sensors[i].reading;
 		std::cout << "temp[0]:" << (int)temp[0] << " temp[1]:" << (int)temp[1] << std::endl;
 		strcat(packet,temp);
 		delete temp;
