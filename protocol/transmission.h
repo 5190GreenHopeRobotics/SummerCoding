@@ -11,9 +11,12 @@
 #ifndef nullptr
 #define nullptr NULL
 #endif
+
+
 class transmissionData {
 public:
 	virtual const unsigned char* toPacket() = 0;
+	virtual unsigned char getLength() const = 0;
 	virtual ~transmissionData();
 };
 
@@ -29,9 +32,13 @@ public:
 	~transmissionPacket();
 	transmissionPacket& operator = (const transmissionPacket& src);
 	bool operator==(const transmissionPacket& src);
-	void setMessageType(unsigned char t);
+	void setMessageType(const unsigned char t);
 	unsigned char getMessageType()const;
 	void setData(transmissionData& data);
+	void setMessageLength(const unsigned char length);
+	unsigned char getLength() const;
+	void setData(const unsigned char* data);
+	const unsigned char* getData() const;
 	unsigned char* toPacket()const;
 };
 
@@ -49,6 +56,7 @@ public:
 	void setSequence(const unsigned char sequence);
 	unsigned char getSequence() const;
 	const unsigned char* toPacket();
+	unsigned char getLength() const;
 };
 
 class commandData : public transmissionData {
@@ -65,6 +73,7 @@ public:
 	void setParameter(const unsigned char param);
 	unsigned char getParameter() const;
 	const unsigned char* toPacket();
+	unsigned char getLength() const;
 };
 
 typedef struct {
@@ -96,7 +105,12 @@ public:
 	void addSensor(const sensorInfo& data);
 	const sensorInfo* getSensors() const;
 	const unsigned char* toPacket();
+	unsigned char getLength() const;
 	~sensorData();
 };
+
+transmissionPacket interpretRawData(const unsigned char* packet);
+
+
 
 #endif /* TRANSMISSION_H_ */

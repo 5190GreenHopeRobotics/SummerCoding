@@ -11,20 +11,34 @@ int main() {
 	sensorData data;
 	data.setArduinoStat(1);
 	sensorInfo info;
-	info.stat=0;
-	info.reading=1;
-	for(int i = 0 ;i< 10; i++) {
+	info.stat = 0;
+	info.reading = 1;
+	for (int i = 0; i < 10; i++) {
 		info.id = i;
 		data.addSensor(info);
 	}
-	const unsigned char* packet = data.toPacket();
-	std::cout << std::endl;
-	for(int i=0;i<2 + data.getSensorNum() * 4;++i) {
-		std::cout<< (short)packet[i];
+	transmissionPacket p;
+	p.setData(data);
+	std::cout << "length:" << (short) p.getLength() << std::endl;
+	const unsigned char* packet = p.toPacket();
+	for (int i = 0; i < p.getLength() + 2; ++i) {
+		std::cout << (short) packet[i];
 	}
-	std::cout << std::endl;
+
 	delete packet;
+
+	packet = p.toPacket();
+
+	transmissionPacket r = interpretRawData(packet);
+
+	delete packet;
+
+	packet = r.toPacket();
+
+	std::cout << std::endl;
+	for (int i = 0; i < p.getLength() + 2; ++i) {
+		std::cout << (short) packet[i];
+	}
+
 }
-
-
 

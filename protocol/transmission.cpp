@@ -7,6 +7,7 @@
 #include "transmission.h"
 #include <cstring>
 #include <iostream>
+
 //////////////////////////////////////////////////////////////////////////
 //						TransmissionPacket 								//
 //////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ bool transmissionPacket::operator ==(const transmissionPacket& src) {
 	return basic && data;
 }
 
-void transmissionPacket::setMessageType(unsigned char t) {
+void transmissionPacket::setMessageType(const unsigned char t) {
 	this->messageType = t;
 }
 
@@ -61,16 +62,29 @@ unsigned char transmissionPacket::getMessageType() const {
 	return this->messageType;
 }
 
+unsigned char transmissionPacket::getLength() const {
+	return this->messageLength;
+}
+
 void transmissionPacket::setData(transmissionData& data) {
 	if (messageData != nullptr) {
 		delete messageData;
 	}
 	const unsigned char* packet = data.toPacket();
-	messageLength = (unsigned char) strlen((const char*) packet);
-	messageData = new unsigned char[messageLength + 1];
-	strcpy((char*) messageData, (const char*) packet);
+	messageLength = data.getLength();
+	messageData = new unsigned char[messageLength];
+	for(int i=0;i< messageLength; ++i) {
+		messageData[i] = packet[i];
+	}
 	delete packet;
 	return;
+}
+
+void transmissionPacket::setData(const unsigned char* data) {
+	if(this->messageData != nullptr) {
+		delete messageData;
+	}
+	this->messageData = (unsigned char*)data;
 }
 
 unsigned char* transmissionPacket::toPacket() const {
@@ -78,7 +92,9 @@ unsigned char* transmissionPacket::toPacket() const {
 	packet[0] = messageType;
 	packet[1] = messageLength;
 	if (messageData != nullptr) {
-		strcat((char*) packet, (char*) messageData);
+		for(int i=2;i<messageLength + 2;++i) {
+			packet[i] = messageData[i -2];
+		}
 		return packet;
 	} else {
 		delete packet;
@@ -87,6 +103,14 @@ unsigned char* transmissionPacket::toPacket() const {
 
 }
 
+
+const unsigned char* transmissionPacket::getData() const {
+	return messageData;
+}
+
+void transmissionPacket::setMessageLength(const unsigned char length) {
+	messageLength = length;
+}
 /////////////////////////////////////////////////////////////////////
 //							TransmissionData					   //
 /////////////////////////////////////////////////////////////////////
@@ -141,6 +165,10 @@ const unsigned char* keepStateData::toPacket() {
 	return packet;
 }
 
+unsigned char keepStateData::getLength() const {
+	return 2;
+}
+
 //////////////////////////////////////////////////////////////////////
 //							CommandData								//
 //////////////////////////////////////////////////////////////////////
@@ -188,6 +216,10 @@ const unsigned char* commandData::toPacket() {
 	return data;
 }
 
+
+unsigned char commandData::getLength() const {
+	return 2;
+}
 ////////////////////////////////////////////////////////////
 //							SensorData					  //
 ////////////////////////////////////////////////////////////
@@ -297,6 +329,32 @@ const unsigned char* sensorData::toPacket() {
 	return packet;
 }
 
+unsigned char sensorData::getLength() const {
+	unsigned char result = 0;
+	result = (sensorNum * 4) + 2;
+	return result;
+}
+
 sensorData::~sensorData() {
 	delete sensors;
+}
+
+//////////////////////////////////////////////////////////////////////
+//								Interpreters				   		//
+//////////////////////////////////////////////////////////////////////
+
+transmissionPacket interpretRawData(const unsigned char* packet) {
+	unsigned char length = 0;
+	length = packet[1];
+	unsigned char type = 0;
+	type = packet[0];
+	unsigned char* data = new unsigned char[length];
+	for(int i = 0; i< length; ++i) {
+		data[i] = packet[i + 2];
+	}
+	transmissionPacket result;
+	result.setMessageType(type);
+	result.setMessageLength(length);
+	result.setData(data);
+	return result;
 }
