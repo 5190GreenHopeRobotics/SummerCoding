@@ -39,6 +39,7 @@ int main() {
 	for (int i = 0; i < p.getLength() + 2; ++i) {
 		std::cout << (short) packet[i];
 	}
+	delete packet;
 
 }
 
