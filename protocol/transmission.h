@@ -326,12 +326,28 @@ public:
 	 */
 	~sensorData();
 };
-
+class interpreter {
+public:
 /**
  * convert raw bytes into a transmissionPacket which needs to be processed further, this is first step
  * @param packet the raw bytes
  * @return converted object
  */
-transmissionPacket interpretRawData(const unsigned char* packet);
+static transmissionPacket interpretRawData(const unsigned char* packet);
+/**
+ * To convert from the transmission packet to a keepState datagram,
+ * @param tp the received transmission packet
+ * @return the interpreted data
+ */
+static keepStateData interpretStatSeq(const transmissionPacket& tp);
+/**
+ * To convert from the transmission packet to a sensorData datagram
+ * @param tp the received transmission packet
+ * @return the interpreted data
+ */
+static sensorData interpretSensData(const transmissionPacket& tp);
+
+};
+
 
 #endif /* TRANSMISSION_H_ */

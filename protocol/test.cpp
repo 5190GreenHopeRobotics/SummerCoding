@@ -7,6 +7,8 @@
 #include <iostream>
 #include "transmission.h"
 
+using namespace std;
+
 int main() {
 	sensorData data;
 	data.setArduinoStat(1);
@@ -17,6 +19,11 @@ int main() {
 		info.id = i;
 		data.addSensor(info);
 	}
+
+
+
+
+
 	transmissionPacket p;
 	p.setData(data);
 	std::cout << "length:" << (short) p.getLength() << std::endl;
@@ -29,7 +36,7 @@ int main() {
 
 	packet = p.toPacket();
 
-	transmissionPacket r = interpretRawData(packet);
+	transmissionPacket r = interpreter::interpretRawData(packet);
 
 	delete packet;
 
@@ -40,6 +47,14 @@ int main() {
 		std::cout << (short) packet[i];
 	}
 	delete packet;
+	cout << endl;
+	sensorData s = interpreter::interpretSensData(p);
+	const sensorInfo* d = s.getSensors();
+	for(int i=0;i< s.getLength();++i){
+		cout << d[i].id << endl;
+	}
+
+	/*cout << (ks == kState) << endl;*/
 
 }
 
