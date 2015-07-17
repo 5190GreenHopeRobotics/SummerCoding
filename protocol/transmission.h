@@ -346,7 +346,12 @@ static keepStateData interpretStatSeq(const transmissionPacket& tp);
  * @return the interpreted data
  */
 static sensorData interpretSensData(const transmissionPacket& tp);
-
+/**
+ * To convert from the transmission packet to a commandData
+ * @param tp the received transmission packet
+ * @return the interpreted data
+ */
+static commandData interpretCommandData(const transmissionPacket& tp);
 };
 
 

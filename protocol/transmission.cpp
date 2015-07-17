@@ -376,4 +376,9 @@ sensorData interpreter::interpretSensData(const transmissionPacket& tp) {
 	}
 	return result;
 }
-
+commandData interpreter::interpretCommandData(const transmissionPacket& tp) {
+	commandData data;
+	data.setParameter(tp.getData()[1]);
+	data.setCommand(tp.getData()[0]);
+	return data;
+}
