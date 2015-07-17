@@ -19,39 +19,24 @@ int main() {
 		info.id = i;
 		data.addSensor(info);
 	}
-
-
-
-
-
 	transmissionPacket p;
 	p.setData(data);
-	std::cout << "length:" << (short) p.getLength() << std::endl;
 	const unsigned char* packet = p.toPacket();
-	for (int i = 0; i < p.getLength() + 2; ++i) {
-		std::cout << (short) packet[i];
-	}
-
 	delete packet;
-
 	packet = p.toPacket();
-
 	transmissionPacket r = interpreter::interpretRawData(packet);
-
 	delete packet;
-
-	packet = r.toPacket();
-
-	std::cout << std::endl;
-	for (int i = 0; i < p.getLength() + 2; ++i) {
-		std::cout << (short) packet[i];
+	packet = r.getData();
+	for(int i=0;i< r.getLength();i++) {
+		std::cout << (short)packet[i];
 	}
-	delete packet;
-	cout << endl;
+	std::cout << std::endl;
 	sensorData s = interpreter::interpretSensData(p);
 	const sensorInfo* d = s.getSensors();
-	for(int i=0;i< s.getLength();++i){
-		cout << d[i].id << endl;
+	std::cout << "sensorNum:" << (short)s.getSensorNum() << std::endl;
+	std::cout << "stat:" << (short)s.getArduinoStat() << std::endl;
+	for(int i=0;i< s.getSensorNum();++i){
+		cout << "id:" << (short)d[i].id << " stat:"<< (short)d[i].stat << " reading:" << (short)d[i].reading << endl;
 	}
 
 	/*cout << (ks == kState) << endl;*/

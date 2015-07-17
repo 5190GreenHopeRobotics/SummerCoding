@@ -73,7 +73,7 @@ void transmissionPacket::setData(transmissionData& data) {
 	const unsigned char* packet = data.toPacket();
 	messageLength = data.getLength();
 	messageData = new unsigned char[messageLength];
-	for(int i=0;i< messageLength; ++i) {
+	for (int i = 0; i < messageLength; ++i) {
 		messageData[i] = packet[i];
 	}
 	delete packet;
@@ -81,10 +81,10 @@ void transmissionPacket::setData(transmissionData& data) {
 }
 
 void transmissionPacket::setData(const unsigned char* data) {
-	if(this->messageData != nullptr) {
+	if (this->messageData != nullptr) {
 		delete messageData;
 	}
-	this->messageData = (unsigned char*)data;
+	this->messageData = (unsigned char*) data;
 }
 
 unsigned char* transmissionPacket::toPacket() const {
@@ -92,8 +92,8 @@ unsigned char* transmissionPacket::toPacket() const {
 	packet[0] = messageType;
 	packet[1] = messageLength;
 	if (messageData != nullptr) {
-		for(int i=2;i<messageLength + 2;++i) {
-			packet[i] = messageData[i -2];
+		for (int i = 2; i < messageLength + 2; ++i) {
+			packet[i] = messageData[i - 2];
 		}
 		return packet;
 	} else {
@@ -102,7 +102,6 @@ unsigned char* transmissionPacket::toPacket() const {
 	}
 
 }
-
 
 const unsigned char* transmissionPacket::getData() const {
 	return messageData;
@@ -216,7 +215,6 @@ const unsigned char* commandData::toPacket() {
 	return data;
 }
 
-
 unsigned char commandData::getLength() const {
 	return 2;
 }
@@ -319,12 +317,12 @@ const unsigned char* sensorData::toPacket() {
 	packet[0] = arduinoStat;
 	packet[1] = sensorNum;
 	for (int i = 0; i < sensorNum; ++i) {
-		packet[(i+1)*2] = sensors[i].id;
-		packet[((i+1)*2) + 1] = sensors[i].stat;
+		packet[(i + 1) * 2] = sensors[i].id;
+		packet[((i + 1) * 2) + 1] = sensors[i].stat;
 	}
 	for (int i = 0; i < sensorNum; ++i) {
-		packet[(2 + (2*sensorNum)) + (i *2)] = sensors[i].id;
-		packet[3 + (2*sensorNum) + (i*2)] = sensors[i].reading;
+		packet[(2 + (2 * sensorNum)) + (i * 2)] = sensors[i].id;
+		packet[3 + (2 * sensorNum) + (i * 2)] = sensors[i].reading;
 	}
 	return packet;
 }
@@ -343,13 +341,13 @@ sensorData::~sensorData() {
 //								Interpreters				   		//
 //////////////////////////////////////////////////////////////////////
 
-transmissionPacket interpreter::interpretRawData(const unsigned char* packet){
+transmissionPacket interpreter::interpretRawData(const unsigned char* packet) {
 	unsigned char length = 0;
 	length = packet[1];
 	unsigned char type = 0;
 	type = packet[0];
 	unsigned char* data = new unsigned char[length];
-	for(int i = 0; i< length; ++i) {
+	for (int i = 0; i < length; ++i) {
 		data[i] = packet[i + 2];
 	}
 	transmissionPacket result;
@@ -365,32 +363,17 @@ keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
 	return ksd;
 }
 sensorData interpreter::interpretSensData(const transmissionPacket& tp) {
-	sensorData sd;
-	unsigned char sensorNum = tp.getData()[1];
-	sd.setArduinoStat(tp.getData()[0]);
+	sensorData result;
 	const unsigned char* raw = tp.getData();
-	sensorInfo tempInfo;
-	for(unsigned char i = 2; i < 2*sensorNum; i+=2) {
-		tempInfo.id = raw[i];
-		sd.addSensor(tempInfo);
+	result.setArduinoStat(raw[0]);
+	int num = raw[1];
+	sensorInfo temp;
+	for (int i = 0; i < num; ++i) {
+		temp.id = raw[(i * 2) + 2];
+		temp.stat = raw[(i * 2) + 3];
+		temp.reading = raw[3 + (2 * num) + (i * 2)];
+		result.addSensor(temp);
 	}
-		for(unsigned char i = 2; i < 2*sensorNum; i+=2) {
-			tempInfo.id = raw[i];
-			i++;
-		}
-
-
-	return sd;
+	return result;
 }
-
-
-
-
-
-
-
-
-
-
-
 
