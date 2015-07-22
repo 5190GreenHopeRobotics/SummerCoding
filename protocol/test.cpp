@@ -2,10 +2,12 @@
  * test.cpp
  *
  *  Created on: Jul 11, 2015
- *      Author: sdai
+ *      Author: Emperor
  */
-#include <iostream>
+#include "iostream"
 #include "transmission.h"
+
+
 
 int main() {
 	sensorData data;
@@ -24,6 +26,9 @@ int main() {
 	}
 	std::cout << std::endl;
 	delete packet;
+
+
+	return 0;
 }
 
 
