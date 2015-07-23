@@ -5,8 +5,6 @@
  *      Author: sdai
  */
 #include "transmission.h"
-#include <cstring>
-#include <iostream>
 
 //////////////////////////////////////////////////////////////////////////
 //						TransmissionPacket 								//
@@ -21,7 +19,9 @@ transmissionPacket::transmissionPacket(const transmissionPacket& src) {
 	this->messageType = src.messageType;
 	this->messageLength = src.messageLength;
 	this->messageData = new unsigned char[messageLength + 1];
-	strcpy((char*) this->messageData, (const char*) src.messageData);
+	for (int i = 0; i < messageLength; i++) {
+		messageData[i] = src.messageData[i];
+	}
 }
 
 transmissionPacket::~transmissionPacket() {
@@ -38,20 +38,10 @@ transmissionPacket& transmissionPacket::operator =(
 		delete this->messageData;
 	}
 	this->messageData = new unsigned char[this->messageLength + 1];
-	strcpy((char*) this->messageData, (const char*) src.messageData);
-	return *this;
-}
-
-bool transmissionPacket::operator ==(const transmissionPacket& src) {
-	bool basic = this->messageType == src.messageType
-			&& this->messageLength == src.messageLength;
-	bool data = false;
-	if (this->messageData == nullptr && src.messageData == nullptr) {
-		data = true;
-	} else {
-		data = strcmp((char*) this->messageData, (char*) src.messageData);
+	for (int i = 0; i < messageLength; i++) {
+		messageData[i] = src.messageData[i];
 	}
-	return basic && data;
+	return *this;
 }
 
 void transmissionPacket::setMessageType(const unsigned char t) {

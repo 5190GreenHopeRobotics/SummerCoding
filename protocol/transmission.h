@@ -9,7 +9,7 @@
 #define TRANSMISSION_H_
 
 #ifndef nullptr
-#define nullptr NULL
+#define nullptr 0
 #endif
 
 /**
@@ -64,12 +64,6 @@ public:
 	 * @return this
 	 */
 	transmissionPacket& operator =(const transmissionPacket& src);
-	/**
-	 * comparison operator
-	 * @param src the object to compare
-	 * @return equal or not
-	 */
-	bool operator==(const transmissionPacket& src);
 	/**
 	 * setter that set the message type
 	 * @param t the value to set
