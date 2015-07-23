@@ -257,7 +257,7 @@ protected:
 	unsigned char arduinoStat;
 	unsigned char sensorNum;
 	sensorInfo* sensors;
-	bool cmpSensorData(const sensorInfo* src, const sensorInfo* data);
+	static bool cmpSensorData(const sensorInfo* src, const sensorInfo* data);
 	void cpSensorData(sensorInfo* src, const sensorInfo* data);
 	void relocate();
 public:

@@ -6,6 +6,7 @@
  */
 #include "transmission.h"
 
+
 //////////////////////////////////////////////////////////////////////////
 //						TransmissionPacket 								//
 //////////////////////////////////////////////////////////////////////////
@@ -221,6 +222,25 @@ sensorData::sensorData() :
 	this->sensors = new sensorInfo[block + 1];
 }
 
+void sensorData::cpSensorData(sensorInfo* src, const sensorInfo* data) {
+	for (int i = 0; i < sensorNum + 1; ++i) {
+		src[i].id = data[i].id;
+		src[i].reading = data[i].reading;
+		src[i].stat = data[i].stat;
+	}
+}
+
+bool sensorData::cmpSensorData(const sensorInfo* src, const sensorInfo* data) {
+	for (int i = 0; i < sensorNum + 1; ++i) {
+		if (src[i].id != data[i].id || src[i].reading != data[i].reading
+				|| src[i].stat != data[i].stat) {
+			return false;
+		}
+	}
+	return true;
+}
+
+
 sensorData::sensorData(const sensorData& data) :
 		block(data.block) {
 	this->arduinoStat = data.arduinoStat;
@@ -249,24 +269,6 @@ bool sensorData::operator ==(const sensorData& src) {
 		return false;
 	}
 	return cmpSensorData(this->sensors, src.sensors);
-}
-
-void sensorData::cpSensorData(sensorInfo* src, const sensorInfo* data) {
-	for (int i = 0; i < sensorNum + 1; ++i) {
-		src[i].id = data[i].id;
-		src[i].reading = data[i].reading;
-		src[i].stat = data[i].stat;
-	}
-}
-
-bool sensorData::cmpSensorData(const sensorInfo* src, const sensorInfo* data) {
-	for (int i = 0; i < sensorNum + 1; ++i) {
-		if (src[i].id != data[i].id || src[i].reading != data[i].reading
-				|| src[i].stat != data[i].stat) {
-			return false;
-		}
-	}
-	return true;
 }
 
 void sensorData::relocate() {
