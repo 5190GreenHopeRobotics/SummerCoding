@@ -9,6 +9,8 @@
 
 
 
+using namespace std;
+
 int main() {
 	sensorData data;
 	data.setArduinoStat(1);
@@ -29,7 +31,13 @@ int main() {
 
 
 	return 0;
+	transmissionPacket tp;
+	commandData cmd;
+	cmd.setCommand(3);
+	cmd.setParameter(2);
+	tp.setData(cmd);
+
+	commandData newData = interpreter::interpretCommandData(tp);
+	std::cout << "cmd:" << (short)newData.getCommand() << " param:" << (short)newData.getParameter() << std::endl;
 }
-
-
 
