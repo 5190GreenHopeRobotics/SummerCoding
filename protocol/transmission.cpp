@@ -27,7 +27,7 @@ transmissionPacket::transmissionPacket(const transmissionPacket& src) {
 
 transmissionPacket::~transmissionPacket() {
 	if (this->messageData != nullptr) {
-		delete this->messageData;
+		delete[] this->messageData;
 	}
 }
 
@@ -36,7 +36,7 @@ transmissionPacket& transmissionPacket::operator =(
 	this->messageType = src.messageType;
 	this->messageLength = src.messageLength;
 	if (this->messageData != nullptr) {
-		delete this->messageData;
+		delete[] this->messageData;
 	}
 	this->messageData = new unsigned char[this->messageLength + 1];
 	for (int i = 0; i < messageLength; i++) {
@@ -59,7 +59,7 @@ unsigned char transmissionPacket::getLength() const {
 
 void transmissionPacket::setData(transmissionData& data) {
 	if (messageData != nullptr) {
-		delete messageData;
+		delete[] messageData;
 	}
 	const unsigned char* packet = data.toPacket();
 	messageLength = data.getLength();
@@ -67,13 +67,13 @@ void transmissionPacket::setData(transmissionData& data) {
 	for (int i = 0; i < messageLength; ++i) {
 		messageData[i] = packet[i];
 	}
-	delete packet;
+	delete[] packet;
 	return;
 }
 
 void transmissionPacket::setData(const unsigned char* data) {
 	if (this->messageData != nullptr) {
-		delete messageData;
+		delete[] messageData;
 	}
 	this->messageData = (unsigned char*) data;
 }
@@ -88,7 +88,7 @@ unsigned char* transmissionPacket::toPacket() const {
 		}
 		return packet;
 	} else {
-		delete packet;
+		delete[] packet;
 		return nullptr;
 	}
 
@@ -252,7 +252,7 @@ sensorData::sensorData(const sensorData& data) :
 
 sensorData& sensorData::operator =(const sensorData& src) {
 	if (this->sensors != nullptr) {
-		delete sensors;
+		delete[] sensors;
 	}
 	this->arduinoStat = src.arduinoStat;
 	this->capacity = src.capacity;
@@ -274,7 +274,7 @@ bool sensorData::operator ==(const sensorData& src) {
 void sensorData::relocate() {
 	sensorInfo* temp = new sensorInfo[capacity + block + 1];
 	cpSensorData(temp, this->sensors);
-	delete sensors;
+	delete[] sensors;
 	sensors = temp;
 	capacity += 5;
 }
@@ -326,7 +326,7 @@ unsigned char sensorData::getLength() const {
 }
 
 sensorData::~sensorData() {
-	delete sensors;
+	delete[] sensors;
 }
 
 //////////////////////////////////////////////////////////////////////
