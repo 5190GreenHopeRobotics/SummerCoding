@@ -5,8 +5,8 @@
  *      Author: sdai
  */
 
-#ifndef VECTOR_H_
-#define VECTOR_H_
+#ifndef vector_H_
+#define vector_H_
 #ifndef nullptr
 #define nullptr 0
 #endif
@@ -36,7 +36,7 @@ namespace frc5190 {
 		~vector();
 	protected:
 		void reallocate();
-		void cpVector(vector<T>& v);
+		void cpVector(frc5190::vector<T>& v);
 		bool cmpData(const T* data) const;
 		bool needReloc()const;
 		T* data;
@@ -47,9 +47,8 @@ namespace frc5190 {
 }
 
 
-using namespace frc5190;
 template<typename T>
-vector<T>::vector()
+frc5190::vector<T>::vector()
 :block(5)
 {
 	data = new T[block];
@@ -61,7 +60,7 @@ vector<T>::vector()
 }
 
 template<typename T>
-vector<T>::vector(const vector<T>& src):
+frc5190::vector<T>::vector(const frc5190::vector<T>& src):
 block(5)
 {
 	data = new T[src.capacity];
@@ -71,12 +70,12 @@ block(5)
 }
 
 template<typename T>
-vector<T>::~vector() {
+frc5190::vector<T>::~vector() {
 	clear();
 }
 
 template<typename T>
-vector<T>& vector<T>::operator =(const vector<T>& src) {
+frc5190::vector<T>& frc5190::vector<T>::operator =(const frc5190::vector<T>& src) {
 	clear();
 	capacity = src.capacity;
 	size = src.size;
@@ -86,7 +85,7 @@ vector<T>& vector<T>::operator =(const vector<T>& src) {
 }
 
 template<typename T>
-bool vector<T>::operator ==(const vector<T>& src)const {
+bool frc5190::vector<T>::operator ==(const frc5190::vector<T>& src)const {
 	if(src.size != size) {
 		return false;
 	}
@@ -94,7 +93,7 @@ bool vector<T>::operator ==(const vector<T>& src)const {
 }
 
 template<typename T>
-bool vector<T>::cmpData(const T* data) const {
+bool frc5190::vector<T>::cmpData(const T* data) const {
 	for(int i=0;i<size;++i) {
 		if(this->data[i] != data[i]) {
 			return false;
@@ -104,7 +103,7 @@ bool vector<T>::cmpData(const T* data) const {
 }
 
 template<typename T>
-void vector<T>::cpVector(vector<T>& v) {
+void frc5190::vector<T>::cpVector(frc5190::vector<T>& v) {
 	for(int i=0;i<v.size;++i) {
 		data[i] = v.data[i];
 	}
@@ -112,7 +111,7 @@ void vector<T>::cpVector(vector<T>& v) {
 }
 
 template<typename T>
-void vector<T>::reallocate() {
+void frc5190::vector<T>::reallocate() {
 	T* temp = new T[capacity + block];
 	for(int i=0;i<capacity+ temp;++i) {
 		temp[i] = nullptr;
@@ -127,12 +126,12 @@ void vector<T>::reallocate() {
 }
 
 template <typename T>
-bool vector<T>::needReloc() const {
+bool frc5190::vector<T>::needReloc() const {
 	return size == capacity;
 }
 
 template<typename T>
-void vector<T>::append(const T& toAdd) {
+void frc5190::vector<T>::append(const T& toAdd) {
 	data[size] = toAdd;
 	size+=1;
 	if(needReloc()) {
@@ -142,7 +141,7 @@ void vector<T>::append(const T& toAdd) {
 }
 
 template <typename T>
-void vector<T>::prepend(const T& toAdd) {
+void frc5190::vector<T>::prepend(const T& toAdd) {
 	for(int i=0;i<size;++i) {
 		data[i+1]=data[i];
 	}
@@ -155,7 +154,7 @@ void vector<T>::prepend(const T& toAdd) {
 }
 
 template <typename T>
-void vector<T>::insert(const T& in,const int index) {
+void frc5190::vector<T>::insert(const T& in,const int index) {
 	if(index >= capacity) {
 		return;
 	}
@@ -175,7 +174,7 @@ void vector<T>::insert(const T& in,const int index) {
 }
 
 template <typename T>
-void vector<T>::remove(const int index) {
+void frc5190::vector<T>::remove(const int index) {
 	if(index == size-1) {
 		removeEnd();
 	}
@@ -187,7 +186,7 @@ void vector<T>::remove(const int index) {
 }
 
 template <typename T>
-T vector<T>::removeEnd() {
+T frc5190::vector<T>::removeEnd() {
 	if(isEmpty()) {
 		return T();
 	} else {
@@ -199,7 +198,7 @@ T vector<T>::removeEnd() {
 }
 
 template <typename T>
-T vector<T>::removeFront() {
+T frc5190::vector<T>::removeFront() {
 	if(isEmpty()) {
 		return T();
 	} else {
@@ -209,37 +208,37 @@ T vector<T>::removeFront() {
 }
 
 template <typename T>
-T& vector<T>::at(const int index) {
+T& frc5190::vector<T>::at(const int index) {
 	return data[index];
 }
 
 template <typename T>
-T& vector<T>::operator [](const int index) {
+T& frc5190::vector<T>::operator [](const int index) {
 	return at(index);
 }
 
 template <typename T>
-T& vector<T>::front() {
+T& frc5190::vector<T>::front() {
 	return data[0];
 }
 
 template <typename T>
-T& vector<T>::back() {
+T& frc5190::vector<T>::back() {
 	return data[size-1];
 }
 
 template <typename T>
-T* vector<T>::begin() {
+T* frc5190::vector<T>::begin() {
 	return &data[0];
 }
 
 template <typename T>
-T* vector<T>::end() {
+T* frc5190::vector<T>::end() {
 	return &data[size];
 }
 
 template <typename T>
-void vector<T>::clear() {
+void frc5190::vector<T>::clear() {
 	size = 0;
 	capacity = block;
 	delete[] data;
@@ -247,16 +246,16 @@ void vector<T>::clear() {
 }
 
 template <typename T>
-int vector<T>::getSize() const {
+int frc5190::vector<T>::getSize() const {
 	return size;
 }
 
 template <typename T>
-bool vector<T>::isEmpty()const {
+bool frc5190::vector<T>::isEmpty()const {
 	return size == 0;
 }
 
 
 
 
-#endif /* VECTOR_H_ */
+#endif /* vector_H_ */
