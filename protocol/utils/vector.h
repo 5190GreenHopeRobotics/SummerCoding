@@ -36,7 +36,7 @@ namespace frc5190 {
 		~vector();
 	protected:
 		void reallocate();
-		void cpVector(frc5190::vector<T>& v);
+		void cpVector(const frc5190::vector<T>& v);
 		bool cmpData(const T* data) const;
 		bool needReloc()const;
 		T* data;
@@ -71,12 +71,12 @@ block(5)
 
 template<typename T>
 frc5190::vector<T>::~vector() {
-	clear();
+	delete[] data;
 }
 
 template<typename T>
 frc5190::vector<T>& frc5190::vector<T>::operator =(const frc5190::vector<T>& src) {
-	clear();
+	delete[] data;
 	capacity = src.capacity;
 	size = src.size;
 	data = new T[src.capacity];
@@ -103,7 +103,7 @@ bool frc5190::vector<T>::cmpData(const T* data) const {
 }
 
 template<typename T>
-void frc5190::vector<T>::cpVector(frc5190::vector<T>& v) {
+void frc5190::vector<T>::cpVector(const frc5190::vector<T>& v) {
 	for(int i=0;i<v.size;++i) {
 		data[i] = v.data[i];
 	}
@@ -113,7 +113,7 @@ void frc5190::vector<T>::cpVector(frc5190::vector<T>& v) {
 template<typename T>
 void frc5190::vector<T>::reallocate() {
 	T* temp = new T[capacity + block];
-	for(int i=0;i<capacity+ temp;++i) {
+	for(int i=0;i<capacity+ block;++i) {
 		temp[i] = nullptr;
 	}
 	for(int i=0;i< size;++i) {
@@ -142,8 +142,9 @@ void frc5190::vector<T>::append(const T& toAdd) {
 
 template <typename T>
 void frc5190::vector<T>::prepend(const T& toAdd) {
-	for(int i=0;i<size;++i) {
-		data[i+1]=data[i];
+
+	for(int i=size;i>0;--i) {
+		data[i]=data[i-1];
 	}
 	data[0] = toAdd;
 	size+=1;
@@ -161,8 +162,8 @@ void frc5190::vector<T>::insert(const T& in,const int index) {
 	if(index >= size) {
 		data[index] = in;
 	} else {
-		for(int i=index;i<size;++i) {
-			data[i+1] = data[i];
+		for(int i=size;i>index;--i) {
+			data[i] = data[i-1];
 		}
 		data[index] = in;
 	}
