@@ -29,6 +29,7 @@ namespace frc5190 {
 		void clear();
 		int getSize() const;
 		bool isEmpty() const;
+		T* getArray() const;
 		vector();
 		vector(const vector<T>& src);
 		vector<T>& operator=(const vector<T>& src);
@@ -54,9 +55,6 @@ frc5190::vector<T>::vector()
 	data = new T[block];
 	capacity=block;
 	size = 0;
-	for(int i=0;i<capacity;++i) {
-		data[i] = nullptr;
-	}
 }
 
 template<typename T>
@@ -113,9 +111,6 @@ void frc5190::vector<T>::cpVector(const frc5190::vector<T>& v) {
 template<typename T>
 void frc5190::vector<T>::reallocate() {
 	T* temp = new T[capacity + block];
-	for(int i=0;i<capacity+ block;++i) {
-		temp[i] = nullptr;
-	}
 	for(int i=0;i< size;++i) {
 		temp[i] = data[i];
 	}
@@ -176,10 +171,14 @@ void frc5190::vector<T>::insert(const T& in,const int index) {
 
 template <typename T>
 void frc5190::vector<T>::remove(const int index) {
+	if(index >= size) {
+		return;
+	}
 	if(index == size-1) {
 		removeEnd();
+		size += 1;
 	}
-	for(int i=index;i<size-1;++i) {
+	for(int i=index;i<size;++i) {
 		data[i] = data[i+1];
 	}
 	size -=1;
@@ -192,7 +191,6 @@ T frc5190::vector<T>::removeEnd() {
 		return T();
 	} else {
 		T deleted = data[size-1];
-		data[size-1] = nullptr;
 		size -=1;
 		return deleted;
 	}
@@ -236,6 +234,15 @@ T* frc5190::vector<T>::begin() {
 template <typename T>
 T* frc5190::vector<T>::end() {
 	return &data[size];
+}
+
+template <typename T>
+T* frc5190::vector<T>::getArray() const {
+	T* array = new T[size];
+	for(int i=0;i<size;++i) {
+		array[i] = data[i];
+	}
+	return array;
 }
 
 template <typename T>

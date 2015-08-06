@@ -5,8 +5,6 @@
  *      Author: sdai
  */
 #include "transmission.h"
-
-
 //////////////////////////////////////////////////////////////////////////
 //						TransmissionPacket 								//
 //////////////////////////////////////////////////////////////////////////
@@ -333,21 +331,6 @@ sensorData::~sensorData() {
 //								Interpreters				   		//
 //////////////////////////////////////////////////////////////////////
 
-transmissionPacket interpreter::interpretRawData(const unsigned char* packet) {
-	unsigned char length = 0;
-	length = packet[1];
-	unsigned char type = 0;
-	type = packet[0];
-	unsigned char* data = new unsigned char[length];
-	for (int i = 0; i < length; ++i) {
-		data[i] = packet[i + 2];
-	}
-	transmissionPacket result;
-	result.setMessageType(type);
-	result.setMessageLength(length);
-	result.setData(data);
-	return result;
-}
 keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
 	keepStateData ksd;
 	ksd.setState(tp.getData()[0]);
@@ -373,4 +356,61 @@ commandData interpreter::interpretCommandData(const transmissionPacket& tp) {
 	data.setParameter(tp.getData()[1]);
 	data.setCommand(tp.getData()[0]);
 	return data;
+}
+
+
+////////////////////////////////////////////////////////////
+//						Buffer							  //
+////////////////////////////////////////////////////////////
+transmissionPacket packetBuffer::interpretRawData(const unsigned char* packet) {
+	unsigned char length = 0;
+	length = packet[1];
+	unsigned char type = 0;
+	type = packet[0];
+	unsigned char* data = new unsigned char[length];
+	for (int i = 0; i < length; ++i) {
+		data[i] = packet[i + 2];
+	}
+	transmissionPacket result;
+	result.setMessageType(type);
+	result.setMessageLength(length);
+	result.setData(data);
+	return result;
+}
+void packetBuffer::addByte(unsigned char b) {
+	buf.append(b);
+}
+
+unsigned char* packetBuffer::getNext() {
+	int packetSize = 0;
+	int bufSize = buf.getSize();
+	if(bufSize < 4) {
+		return nullptr;
+	}
+	packetSize = buf[1] + 2;
+	if(bufSize < packetSize) {
+		return nullptr;
+	}
+	unsigned char* p = new unsigned char[packetSize];
+	for(int i=0;i<packetSize;++i) {
+		p[i] = buf[i];
+	}
+	for(int i=packetSize-1;i>-1;--i) {
+		buf.remove(i);
+	}
+	return p;
+
+}
+
+frc5190::vector<transmissionPacket> packetBuffer::getPackets() {
+	unsigned char* temp;
+	frc5190::vector<transmissionPacket> b;
+	while(true) {
+		temp = getNext();
+		if(temp == nullptr) {
+			return b;
+		}
+		b.append(interpretRawData(temp));
+		delete[] temp;
+	}
 }

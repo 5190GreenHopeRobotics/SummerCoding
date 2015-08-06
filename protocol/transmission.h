@@ -7,7 +7,7 @@
 
 #ifndef TRANSMISSION_H_
 #define TRANSMISSION_H_
-
+#include "utils/vector.h"
 #ifndef nullptr
 #define nullptr 0
 #endif
@@ -323,12 +323,6 @@ public:
 class interpreter {
 public:
 /**
- * convert raw bytes into a transmissionPacket which needs to be processed further, this is first step
- * @param packet the raw bytes
- * @return converted object
- */
-static transmissionPacket interpretRawData(const unsigned char* packet);
-/**
  * To convert from the transmission packet to a keepState datagram,
  * @param tp the received transmission packet
  * @return the interpreted data
@@ -348,5 +342,20 @@ static sensorData interpretSensData(const transmissionPacket& tp);
 static commandData interpretCommandData(const transmissionPacket& tp);
 };
 
+
+class packetBuffer {
+protected:
+	frc5190::vector<unsigned char> buf;
+	/**
+	 * convert raw bytes into a transmissionPacket which needs to be processed further, this is first step
+	 * @param packet the raw bytes
+	 * @return converted object
+	 */
+	transmissionPacket interpretRawData(const unsigned char* packet);
+	unsigned char* getNext();
+public:
+	void addByte(const unsigned char b);
+	frc5190::vector<transmissionPacket> getPackets();
+};
 
 #endif /* TRANSMISSION_H_ */
