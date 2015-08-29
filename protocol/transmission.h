@@ -233,16 +233,19 @@ public:
 	unsigned char getLength() const;
 };
 
+
 /**
  * the sensor data
  * the sensor data which goes in sensorData datagram
  * @see sensorData
  */
-typedef struct {
+struct sensorInfo {
 	unsigned char id;
 	unsigned char stat;
 	unsigned char reading;
-} sensorInfo;
+	bool operator ==(const sensorInfo& info);
+	bool operator !=(const sensorInfo& info);
+};
 
 /**
  * the sensor data datagram

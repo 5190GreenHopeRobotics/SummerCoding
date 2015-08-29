@@ -207,6 +207,21 @@ const unsigned char* commandData::toPacket() {
 unsigned char commandData::getLength() const {
 	return 2;
 }
+
+
+/////////////////////////////////////////////////////////////
+//						SensorInfo						   //
+/////////////////////////////////////////////////////////////
+
+bool sensorInfo::operator ==(const sensorInfo& info) {
+	return id == info.id && reading == info.reading && stat == info.stat;
+}
+
+bool sensorInfo::operator !=(const sensorInfo & info) {
+	return !(*this == info);
+}
+
+
 ////////////////////////////////////////////////////////////
 //							SensorData					  //
 ////////////////////////////////////////////////////////////
