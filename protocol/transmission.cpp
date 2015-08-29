@@ -211,70 +211,31 @@ unsigned char commandData::getLength() const {
 //							SensorData					  //
 ////////////////////////////////////////////////////////////
 
-sensorData::sensorData() :
-		block(5) {
+sensorData::sensorData() {
 	this->arduinoStat = 1;
-	this->capacity = block;
-	this->current = -1;
 	this->sensorNum = 0;
-	this->sensors = new sensorInfo[block + 1];
-}
-
-void sensorData::cpSensorData(sensorInfo* src, const sensorInfo* data) {
-	for (int i = 0; i < sensorNum + 1; ++i) {
-		src[i].id = data[i].id;
-		src[i].reading = data[i].reading;
-		src[i].stat = data[i].stat;
-	}
-}
-
-bool sensorData::cmpSensorData(const sensorInfo* src, const sensorInfo* data) {
-	for (int i = 0; i < sensorNum + 1; ++i) {
-		if (src[i].id != data[i].id || src[i].reading != data[i].reading
-				|| src[i].stat != data[i].stat) {
-			return false;
-		}
-	}
-	return true;
 }
 
 
-sensorData::sensorData(const sensorData& data) :
-		block(data.block) {
+sensorData::sensorData(const sensorData& data) {
 	this->arduinoStat = data.arduinoStat;
-	this->capacity = data.capacity;
-	this->current = data.current;
 	this->sensorNum = data.sensorNum;
-	cpSensorData(this->sensors, data.sensors);
+	this->data = data.data;
 }
 
 sensorData& sensorData::operator =(const sensorData& src) {
-	if (this->sensors != nullptr) {
-		delete[] sensors;
-	}
 	this->arduinoStat = src.arduinoStat;
-	this->capacity = src.capacity;
-	this->current = src.current;
 	this->sensorNum = src.sensorNum;
-	cpSensorData(this->sensors, src.sensors);
+	this->data = src.data;
 	return *this;
 }
 
 bool sensorData::operator ==(const sensorData& src) {
-	if (this->arduinoStat != src.arduinoStat || this->capacity != src.capacity
-			|| this->current != src.current
+	if (this->arduinoStat != src.arduinoStat
 			|| this->sensorNum != src.sensorNum) {
 		return false;
 	}
-	return cmpSensorData(this->sensors, src.sensors);
-}
-
-void sensorData::relocate() {
-	sensorInfo* temp = new sensorInfo[capacity + block + 1];
-	cpSensorData(temp, this->sensors);
-	delete[] sensors;
-	sensors = temp;
-	capacity += 5;
+	return this->data == src.data;
 }
 
 void sensorData::setArduinoStat(const unsigned char stat) {
@@ -290,16 +251,12 @@ unsigned char sensorData::getSensorNum() const {
 }
 
 void sensorData::addSensor(const sensorInfo& data) {
-	this->current++;
-	sensors[current] = data;
+	this->data.append(data);
 	sensorNum++;
-	if (current == capacity - 1) {
-		relocate();
-	}
 }
 
 const sensorInfo* sensorData::getSensors() const {
-	return sensors;
+	return this->data.getArray();
 }
 
 const unsigned char* sensorData::toPacket() {
@@ -307,12 +264,12 @@ const unsigned char* sensorData::toPacket() {
 	packet[0] = arduinoStat;
 	packet[1] = sensorNum;
 	for (int i = 0; i < sensorNum; ++i) {
-		packet[(i + 1) * 2] = sensors[i].id;
-		packet[((i + 1) * 2) + 1] = sensors[i].stat;
+		packet[(i + 1) * 2] = data[i].id;
+		packet[((i + 1) * 2) + 1] = data[i].stat;
 	}
 	for (int i = 0; i < sensorNum; ++i) {
-		packet[(2 + (2 * sensorNum)) + (i * 2)] = sensors[i].id;
-		packet[3 + (2 * sensorNum) + (i * 2)] = sensors[i].reading;
+		packet[(2 + (2 * sensorNum)) + (i * 2)] = data[i].id;
+		packet[3 + (2 * sensorNum) + (i * 2)] = data[i].reading;
 	}
 	return packet;
 }
@@ -324,7 +281,6 @@ unsigned char sensorData::getLength() const {
 }
 
 sensorData::~sensorData() {
-	delete[] sensors;
 }
 
 //////////////////////////////////////////////////////////////////////

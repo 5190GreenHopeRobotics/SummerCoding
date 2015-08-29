@@ -251,15 +251,9 @@ typedef struct {
  */
 class sensorData: public transmissionData {
 protected:
-	const int block;
-	int capacity;
-	int current;
 	unsigned char arduinoStat;
 	unsigned char sensorNum;
-	sensorInfo* sensors;
-	bool cmpSensorData(const sensorInfo* src, const sensorInfo* data);
-	void cpSensorData(sensorInfo* src, const sensorInfo* data);
-	void relocate();
+	frc5190::vector<sensorInfo> data;
 public:
 	/**
 	 * default ctor
