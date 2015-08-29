@@ -348,7 +348,15 @@ protected:
 	transmissionPacket interpretRawData(const unsigned char* packet);
 	unsigned char* getNext();
 public:
+	/**
+	 * add a byte to the buffer
+	 * @param b the byte
+	 */
 	void addByte(const unsigned char b);
+	/**
+	 * convert the bytes in the buffer to transmissionPacket
+	 * @return converted packets
+	 */
 	frc5190::vector<transmissionPacket> getPackets();
 };
 
