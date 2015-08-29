@@ -7,7 +7,7 @@
 
 #ifndef TRANSMISSION_H_
 #define TRANSMISSION_H_
-#include "utils/vector.h"
+#include "vector.h"
 #ifndef nullptr
 #define nullptr 0
 #endif
