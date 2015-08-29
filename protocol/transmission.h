@@ -243,7 +243,17 @@ struct sensorInfo {
 	unsigned char id;
 	unsigned char stat;
 	unsigned char reading;
+	/**
+	 * equal operator
+	 * @param info the struct to compare
+	 * @return result
+	 */
 	bool operator ==(const sensorInfo& info);
+	/**
+	 * not equal operator
+	 * @param info the struct to compare
+	 * @return result
+	 */
 	bool operator !=(const sensorInfo& info);
 };
 
