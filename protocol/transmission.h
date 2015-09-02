@@ -118,7 +118,7 @@ public:
 class keepStateData: public transmissionData {
 protected:
 	unsigned char state;
-	unsigned char sequence;
+	unsigned char sequence[4];
 public:
 	/**
 	 * default ctor
@@ -156,12 +156,12 @@ public:
 	 * the setter that sets the sequence which should with each packet
 	 * @param sequence the sequence num
 	 */
-	void setSequence(const unsigned char sequence);
+	void setSequence(const unsigned char* sequence);
 	/**
 	 * the getter that gets the sequence
 	 * @return the sequence num
 	 */
-	unsigned char getSequence() const;
+	unsigned char* getSequence() const;
 	/**
 	 * see super class
 	 */
@@ -180,7 +180,7 @@ public:
 class commandData: public transmissionData {
 protected:
 	unsigned char command;
-	unsigned char param;
+	unsigned char param[2];
 public:
 	/**
 	 * default ctor
@@ -217,12 +217,12 @@ public:
 	 * sets the parameter for the command, set to 0 if none
 	 * @param param the parameter
 	 */
-	void setParameter(const unsigned char param);
+	void setParameter(const unsigned char* param);
 	/**
 	 * gets the parameter field
 	 * @return the parameter
 	 */
-	unsigned char getParameter() const;
+	unsigned char* getParameter() const;
 	/**
 	 * see super class
 	 */
