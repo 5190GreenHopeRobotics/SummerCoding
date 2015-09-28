@@ -5,6 +5,18 @@
  *      Author: sdai
  */
 #include "transmission.h"
+
+int bytesToInt(const unsigned char* b, int length) {
+	int val = 0;
+	int j = 0;
+	for (int i = length-1; i >= 0; --i)
+	{
+		val += (b[i] & 0xFF) << (8*j);
+        ++j;
+    }
+    return val;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //						TransmissionPacket 								//
 //////////////////////////////////////////////////////////////////////////
@@ -115,14 +127,14 @@ keepStateData::keepStateData() {
 }
 
 keepStateData::keepStateData(const keepStateData& src) {
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 2; ++i) {
 		sequence[i] = src.sequence[i];
 	}
 	this->state = src.state;
 }
 
 keepStateData& keepStateData::operator =(const keepStateData& src) {
-	for (int i = 0; i < 4; ++i) {
+	for (int i = 0; i < 2; ++i) {
 		sequence[i] = src.sequence[i];
 	}
 	this->state = src.state;
@@ -133,7 +145,7 @@ bool keepStateData::operator ==(const keepStateData& src) {
 	bool st = false;
 	bool seq = true;
 	st = (state == src.getState());
-	for(int i=0;i<4;++i) {
+	for(int i=0;i<2;++i) {
 		if(sequence[i] != src.sequence[i]) {
 			seq = false;
 			break;
@@ -151,26 +163,30 @@ unsigned char keepStateData::getState() const {
 }
 
 void keepStateData::setSequence(const unsigned char* sequence) {
-	for(int i=0;i<4;++i) {
+	for(int i=0;i<2;++i) {
 		this->sequence[i] = sequence[i];
 	}
 }
 
-unsigned char* keepStateData::getSequence() const {
+const unsigned char* keepStateData::getSequence() const {
 	return sequence;
+}
+
+int keepStateData::getSequenceInt() const {
+	return bytesToInt(sequence, 2);
 }
 
 const unsigned char* keepStateData::toPacket() {
 	unsigned char* packet = new unsigned char[5];
 	packet[0] = state;
-	for(int i=1;i<5;++i) {
+	for(int i=1;i<3;++i) {
 		packet[i] = sequence[i-1];
 	}
 	return packet;
 }
 
 unsigned char keepStateData::getLength() const {
-	return 5;
+	return 3;
 }
 
 //////////////////////////////////////////////////////////////////////
@@ -195,7 +211,7 @@ commandData& commandData::operator =(const commandData& src) {
 bool commandData::operator ==(const commandData& src) {
 	bool commandEqual;
 	bool paramEqual;
-	commandEqual = (commandData == src.command);
+	commandEqual = (this->command == src.command);
 	for(int i=0;i<2;++i) {
 		if(param[i] != src.param[i]) {
 			paramEqual = false;
@@ -220,7 +236,7 @@ void commandData::setParameter(const unsigned char* param) {
 	return;
 }
 
-unsigned char* commandData::getParameter() const {
+const unsigned char* commandData::getParameter() const {
 	return param;
 }
 
@@ -242,7 +258,16 @@ unsigned char commandData::getLength() const {
 /////////////////////////////////////////////////////////////
 
 bool sensorInfo::operator ==(const sensorInfo& info) {
-	return id == info.id && reading == info.reading && stat == info.stat;
+	bool isReadingSame;
+	if(id != info.id || stat != info.stat) {
+		return false;
+	}
+	for(int i=0;i<2;++i) {
+		if(reading[i] != info.reading[i]) {
+			return false;
+		}
+	}
+	return true;
 }
 
 bool sensorInfo::operator !=(const sensorInfo & info) {
@@ -301,7 +326,7 @@ const sensorInfo* sensorData::getSensors() const {
 }
 
 const unsigned char* sensorData::toPacket() {
-	unsigned char* packet = new unsigned char[2 + 4 * sensorNum];
+	unsigned char* packet = new unsigned char[2 + 3 * sensorNum + 2 * sensorNum];
 	packet[0] = arduinoStat;
 	packet[1] = sensorNum;
 	for (int i = 0; i < sensorNum; ++i) {
@@ -309,15 +334,16 @@ const unsigned char* sensorData::toPacket() {
 		packet[((i + 1) * 2) + 1] = data[i].stat;
 	}
 	for (int i = 0; i < sensorNum; ++i) {
-		packet[(2 + (2 * sensorNum)) + (i * 2)] = data[i].id;
-		packet[3 + (2 * sensorNum) + (i * 2)] = data[i].reading;
+		packet[(2 + (2 * sensorNum)) + (i * 3)] = data[i].id;
+		packet[3 + (2 * sensorNum) + (i * 3)] = data[i].reading[0];
+		packet[4 + (2 * sensorNum) + (i * 3)] = data[i].reading[1];
 	}
 	return packet;
 }
 
 unsigned char sensorData::getLength() const {
 	unsigned char result = 0;
-	result = (sensorNum * 4) + 2;
+	result = (sensorNum * 5) + 2;
 	return result;
 }
 
@@ -330,8 +356,12 @@ sensorData::~sensorData() {
 
 keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
 	keepStateData ksd;
-//	ksd.setState(tp.getData()[0]);
-//	ksd.setSequence(tp.getData()[1]);
+	unsigned char buf[4];
+	buf[0] = tp.getData()[1];
+	buf[1] = tp.getData()[2];
+	buf[2] = tp.getData()[3];
+	buf[3] = tp.getData()[4];
+	ksd.setSequence(buf);
 	return ksd;
 }
 sensorData interpreter::interpretSensData(const transmissionPacket& tp) {
@@ -343,15 +373,19 @@ sensorData interpreter::interpretSensData(const transmissionPacket& tp) {
 	for (int i = 0; i < num; ++i) {
 		temp.id = raw[(i * 2) + 2];
 		temp.stat = raw[(i * 2) + 3];
-		temp.reading = raw[3 + (2 * num) + (i * 2)];
+		temp.reading[0] = raw[3 + (2 * num) + (i * 3)];
+		temp.reading[1] = raw[4 + (2 * num) + (i * 3)];
 		result.addSensor(temp);
 	}
 	return result;
 }
 commandData interpreter::interpretCommandData(const transmissionPacket& tp) {
 	commandData data;
-//	data.setParameter(tp.getData()[1]);
-//	data.setCommand(tp.getData()[0]);
+	unsigned char buf[2];
+	buf[0] = tp.getData()[1];
+	buf[1] = tp.getData()[2];
+	data.setParameter(buf);
+	data.setCommand(tp.getData()[0]);
 	return data;
 }
 

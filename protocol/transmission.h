@@ -12,6 +12,9 @@
 #define nullptr 0
 #endif
 
+
+int bytesToInt(const unsigned char* data, int length);
+
 /**
  * the transmissionData abstract class
  * The datagram of the transmission protocol, it is encapsulated with in the transmissionPacket
@@ -118,7 +121,7 @@ public:
 class keepStateData: public transmissionData {
 protected:
 	unsigned char state;
-	unsigned char sequence[4];
+	unsigned char sequence[2];
 public:
 	/**
 	 * default ctor
@@ -161,7 +164,13 @@ public:
 	 * the getter that gets the sequence
 	 * @return the sequence num
 	 */
-	unsigned char* getSequence() const;
+	const unsigned char* getSequence() const;
+	/**
+	 * get the sequence as a integer
+	 * @return the integer for the sequence
+	 */
+	int getSequenceInt() const;
+
 	/**
 	 * see super class
 	 */
@@ -222,7 +231,7 @@ public:
 	 * gets the parameter field
 	 * @return the parameter
 	 */
-	unsigned char* getParameter() const;
+	const unsigned char* getParameter() const;
 	/**
 	 * see super class
 	 */
@@ -242,7 +251,7 @@ public:
 struct sensorInfo {
 	unsigned char id;
 	unsigned char stat;
-	unsigned char reading;
+	char reading[2];
 	/**
 	 * equal operator
 	 * @param info the struct to compare
