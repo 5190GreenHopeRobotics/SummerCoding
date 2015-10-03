@@ -7,13 +7,15 @@
 #include "transmission.h"
 #include <iostream>
 int main() {
+	unsigned char* buffer = new unsigned char[2];
+	intToBytes(1321,buffer);
 	packetBuffer buf;
 	buf.addByte(0);
 	buf.addByte(3);
 	buf.addByte(1);
-	buf.addByte(0);
-	buf.addByte(1);
-
+	buf.addByte(buffer[0]);
+	buf.addByte(buffer[1]);
+	delete[] buffer;
 	frc5190::vector<transmissionPacket> tp = buf.getPackets();
 	std::cout << "packet Num:" << tp.getSize() << std::endl;
 	transmissionPacket p = tp[0];
@@ -28,7 +30,7 @@ int main() {
 
 	std::cout << "packet 1 keep state:" << std::endl;
 	std::cout << "state" <<(short)data.getState() << std::endl;
-	std::cout << "seq:" << data.getSequenceInt() << std::endl;
+	std::cout << "seq:" << data.getSequence() << std::endl;
 }
 
 

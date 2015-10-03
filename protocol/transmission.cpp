@@ -7,14 +7,17 @@
 #include "transmission.h"
 
 int bytesToInt(const unsigned char* b, int length) {
-	int val = 0;
-	int j = 0;
-	for (int i = length-1; i >= 0; --i)
-	{
-		val += (b[i] & 0xFF) << (8*j);
-        ++j;
-    }
+	int val = (b[1]<<8)+b[0];;
     return val;
+}
+
+void intToBytes(const int data, unsigned char* result) {
+	int buffer = data;
+	int size = sizeof(int);
+	unsigned char* resultBuffer = (unsigned char*)&buffer;
+	for(int i=0;i<size;++i) {
+		result[i] = resultBuffer[i];
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -168,11 +171,7 @@ void keepStateData::setSequence(const unsigned char* sequence) {
 	}
 }
 
-const unsigned char* keepStateData::getSequence() const {
-	return sequence;
-}
-
-int keepStateData::getSequenceInt() const {
+const int keepStateData::getSequence() const {
 	return bytesToInt(sequence, 2);
 }
 
@@ -185,7 +184,7 @@ const unsigned char* keepStateData::toPacket() {
 	return packet;
 }
 
-unsigned char keepStateData::getLength() const {
+const int keepStateData::getLength() const {
 	return 3;
 }
 
@@ -229,15 +228,18 @@ unsigned char commandData::getCommand() const {
 	return command;
 }
 
-void commandData::setParameter(const unsigned char* param) {
+void commandData::setParameter(const int param) {
+	unsigned char* buffer = new unsigned char[2];
+	intToBytes(param,buffer);
 	for(int i=0;i<2;++i) {
-		this->param[i] = param[i];
+		this->param[i] = buffer[i];
 	}
+	delete[] buffer;
 	return;
 }
 
-const unsigned char* commandData::getParameter() const {
-	return param;
+const int commandData::getParameter() const {
+	return bytesToInt(param,2);
 }
 
 const unsigned char* commandData::toPacket() {
@@ -249,7 +251,7 @@ const unsigned char* commandData::toPacket() {
 	return data;
 }
 
-unsigned char commandData::getLength() const {
+const int commandData::getLength() const {
 	return 3;
 }
 
@@ -341,8 +343,8 @@ const unsigned char* sensorData::toPacket() {
 	return packet;
 }
 
-unsigned char sensorData::getLength() const {
-	unsigned char result = 0;
+const int sensorData::getLength() const {
+	int result = 0;
 	result = (sensorNum * 5) + 2;
 	return result;
 }
@@ -384,7 +386,7 @@ commandData interpreter::interpretCommandData(const transmissionPacket& tp) {
 	unsigned char buf[2];
 	buf[0] = tp.getData()[1];
 	buf[1] = tp.getData()[2];
-	data.setParameter(buf);
+	data.setParameter(bytesToInt(buf,2));
 	data.setCommand(tp.getData()[0]);
 	return data;
 }

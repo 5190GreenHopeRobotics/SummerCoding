@@ -14,6 +14,7 @@
 
 
 int bytesToInt(const unsigned char* data, int length);
+void intToBytes(const int data, unsigned char* result);
 
 /**
  * the transmissionData abstract class
@@ -30,7 +31,7 @@ public:
 	 * an getter that access the length of the datagram
 	 * @return the length of the data
 	 */
-	virtual unsigned char getLength() const = 0;
+	virtual const int getLength() const = 0;
 	/**
 	 * does nothing
 	 */
@@ -164,12 +165,7 @@ public:
 	 * the getter that gets the sequence
 	 * @return the sequence num
 	 */
-	const unsigned char* getSequence() const;
-	/**
-	 * get the sequence as a integer
-	 * @return the integer for the sequence
-	 */
-	int getSequenceInt() const;
+	const int getSequence() const;
 
 	/**
 	 * see super class
@@ -178,7 +174,7 @@ public:
 	/**
 	 * see super class
 	 */
-	unsigned char getLength() const;
+	const int getLength() const;
 };
 
 /**
@@ -226,12 +222,12 @@ public:
 	 * sets the parameter for the command, set to 0 if none
 	 * @param param the parameter
 	 */
-	void setParameter(const unsigned char* param);
+	void setParameter(const int param);
 	/**
 	 * gets the parameter field
 	 * @return the parameter
 	 */
-	const unsigned char* getParameter() const;
+	const int getParameter() const;
 	/**
 	 * see super class
 	 */
@@ -239,7 +235,7 @@ public:
 	/**
 	 * see super class
 	 */
-	unsigned char getLength() const;
+	const int getLength() const;
 };
 
 
@@ -330,7 +326,7 @@ public:
 	/**
 	 * see super class
 	 */
-	unsigned char getLength() const;
+	const int getLength() const;
 	/**
 	 * free the memory
 	 */
