@@ -6,17 +6,61 @@
  */
 #include "transmission.h"
 
+void endianConverter(unsigned char* data, const int length) {
+	for(int i=0;i<length/2;++i) {
+		unsigned char buf;
+		buf = data[i];
+		data[i] = data[length-1-i];
+		data[length-1-i] = buf;
+	}
+}
+
+template<typename T>
+unsigned char* convertToByte(T data) {
+	unsigned char* buf = new unsigned char[sizeof(data)];
+	union {
+		T d;
+		unsigned char array[sizeof(data)];
+	} converter;
+	converter.d = data;
+	for (int i = 0; i < sizeof(data); ++i) {
+		buf[i] = converter.array[i];
+	}
+	return buf;
+}
+
 int bytesToInt(const unsigned char* b, int length) {
-	int val = (b[1]<<8)+b[0];;
-    return val;
+	int val = (b[1] << 8) + b[0];
+	return val;
 }
 
 void intToBytes(const int data, unsigned char* result) {
 	int buffer = data;
 	int size = sizeof(int);
-	unsigned char* resultBuffer = (unsigned char*)&buffer;
-	for(int i=0;i<size;++i) {
+	unsigned char* resultBuffer = (unsigned char*) &buffer;
+	for (int i = 0; i < size; ++i) {
 		result[i] = resultBuffer[i];
+	}
+}
+
+void swap(unsigned char bytes[2]) {
+	unsigned char buf = bytes[0];
+	bytes[0] = bytes[1];
+	bytes[1] = buf;
+}
+
+unsigned char* cpyBytes(const unsigned char* bytes, const int length) {
+	unsigned char* buf = new unsigned char[length];
+	for (int i = 0; i < length; ++i) {
+		buf[i] = bytes[i];
+	}
+	return buf;
+}
+
+void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
+		const int end) {
+	for(int i=start;i<end;++i) {
+		target[i] = src[i];
 	}
 }
 
@@ -148,8 +192,8 @@ bool keepStateData::operator ==(const keepStateData& src) {
 	bool st = false;
 	bool seq = true;
 	st = (state == src.getState());
-	for(int i=0;i<2;++i) {
-		if(sequence[i] != src.sequence[i]) {
+	for (int i = 0; i < 2; ++i) {
+		if (sequence[i] != src.sequence[i]) {
 			seq = false;
 			break;
 		}
@@ -166,7 +210,7 @@ unsigned char keepStateData::getState() const {
 }
 
 void keepStateData::setSequence(const unsigned char* sequence) {
-	for(int i=0;i<2;++i) {
+	for (int i = 0; i < 2; ++i) {
 		this->sequence[i] = sequence[i];
 	}
 }
@@ -178,9 +222,12 @@ const int keepStateData::getSequence() const {
 const unsigned char* keepStateData::toPacket() {
 	unsigned char* packet = new unsigned char[5];
 	packet[0] = state;
-	for(int i=1;i<3;++i) {
-		packet[i] = sequence[i-1];
+	unsigned char* buf = cpyBytes(sequence, 2);
+	swap(buf);
+	for (int i = 1; i < 3; ++i) {
+		packet[i] = buf[i - 1];
 	}
+	delete[] buf;
 	return packet;
 }
 
@@ -211,8 +258,8 @@ bool commandData::operator ==(const commandData& src) {
 	bool commandEqual;
 	bool paramEqual;
 	commandEqual = (this->command == src.command);
-	for(int i=0;i<2;++i) {
-		if(param[i] != src.param[i]) {
+	for (int i = 0; i < 2; ++i) {
+		if (param[i] != src.param[i]) {
 			paramEqual = false;
 			break;
 		}
@@ -230,8 +277,8 @@ unsigned char commandData::getCommand() const {
 
 void commandData::setParameter(const int param) {
 	unsigned char* buffer = new unsigned char[2];
-	intToBytes(param,buffer);
-	for(int i=0;i<2;++i) {
+	intToBytes(param, buffer);
+	for (int i = 0; i < 2; ++i) {
 		this->param[i] = buffer[i];
 	}
 	delete[] buffer;
@@ -239,15 +286,18 @@ void commandData::setParameter(const int param) {
 }
 
 const int commandData::getParameter() const {
-	return bytesToInt(param,2);
+	return bytesToInt(param, 2);
 }
 
 const unsigned char* commandData::toPacket() {
 	unsigned char* data = new unsigned char[3];
 	data[0] = command;
-	for(int i=1;i<3;++i) {
-		data[i] = param[i-1];
+	unsigned char* buf = cpyBytes(param, 2);
+	swap(buf);
+	for (int i = 1; i < 3; ++i) {
+		data[i] = buf[i - 1];
 	}
+	delete[] buf;
 	return data;
 }
 
@@ -259,134 +309,32 @@ const int commandData::getLength() const {
 //						SensorInfo						   //
 /////////////////////////////////////////////////////////////
 
-bool sensorInfo::operator ==(const sensorInfo& info) {
-	bool isReadingSame;
-	if(id != info.id || stat != info.stat) {
-		return false;
-	}
-	for(int i=0;i<2;++i) {
-		if(reading[i] != info.reading[i]) {
-			return false;
-		}
-	}
-	return true;
-}
-
-bool sensorInfo::operator !=(const sensorInfo & info) {
-	return !(*this == info);
-}
-
-////////////////////////////////////////////////////////////
-//							SensorData					  //
-////////////////////////////////////////////////////////////
-
-sensorData::sensorData() {
-	this->arduinoStat = 1;
-	this->sensorNum = 0;
-}
-
-sensorData::sensorData(const sensorData& data) {
-	this->arduinoStat = data.arduinoStat;
-	this->sensorNum = data.sensorNum;
-	this->data = data.data;
-}
-
-sensorData& sensorData::operator =(const sensorData& src) {
-	this->arduinoStat = src.arduinoStat;
-	this->sensorNum = src.sensorNum;
-	this->data = src.data;
-	return *this;
-}
-
-bool sensorData::operator ==(const sensorData& src) {
-	if (this->arduinoStat != src.arduinoStat
-			|| this->sensorNum != src.sensorNum) {
-		return false;
-	}
-	return this->data == src.data;
-}
-
-void sensorData::setArduinoStat(const unsigned char stat) {
-	this->arduinoStat = stat;
-}
-
-unsigned char sensorData::getArduinoStat() const {
-	return arduinoStat;
-}
-
-unsigned char sensorData::getSensorNum() const {
-	return sensorNum;
-}
-
-void sensorData::addSensor(const sensorInfo& data) {
-	this->data.append(data);
-	sensorNum++;
-}
-
-const sensorInfo* sensorData::getSensors() const {
-	return this->data.getArray();
-}
-
-const unsigned char* sensorData::toPacket() {
-	unsigned char* packet = new unsigned char[2 + 3 * sensorNum + 2 * sensorNum];
-	packet[0] = arduinoStat;
-	packet[1] = sensorNum;
-	for (int i = 0; i < sensorNum; ++i) {
-		packet[(i + 1) * 2] = data[i].id;
-		packet[((i + 1) * 2) + 1] = data[i].stat;
-	}
-	for (int i = 0; i < sensorNum; ++i) {
-		packet[(2 + (2 * sensorNum)) + (i * 3)] = data[i].id;
-		packet[3 + (2 * sensorNum) + (i * 3)] = data[i].reading[0];
-		packet[4 + (2 * sensorNum) + (i * 3)] = data[i].reading[1];
-	}
-	return packet;
-}
-
-const int sensorData::getLength() const {
-	int result = 0;
-	result = (sensorNum * 5) + 2;
-	return result;
-}
-
-sensorData::~sensorData() {
-}
-
 //////////////////////////////////////////////////////////////////////
 //								Interpreters				   		//
 //////////////////////////////////////////////////////////////////////
 
 keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
 	keepStateData ksd;
-	unsigned char buf[4];
-	buf[0] = tp.getData()[1];
-	buf[1] = tp.getData()[2];
-	buf[2] = tp.getData()[3];
-	buf[3] = tp.getData()[4];
-	ksd.setSequence(buf);
+	const unsigned char* data = tp.getData();
+	unsigned char* buf = cpyBytes(data, 3);
+	ksd.setState(buf[0]);
+	unsigned char* sequenceBuffer = new unsigned char[2];
+	sequenceBuffer[0] = buf[1];
+	sequenceBuffer[1] = buf[2];
+	swap(sequenceBuffer);
+	ksd.setSequence(sequenceBuffer);
+	delete[] buf;
+	delete[] sequenceBuffer;
 	return ksd;
 }
-sensorData interpreter::interpretSensData(const transmissionPacket& tp) {
-	sensorData result;
-	const unsigned char* raw = tp.getData();
-	result.setArduinoStat(raw[0]);
-	int num = raw[1];
-	sensorInfo temp;
-	for (int i = 0; i < num; ++i) {
-		temp.id = raw[(i * 2) + 2];
-		temp.stat = raw[(i * 2) + 3];
-		temp.reading[0] = raw[3 + (2 * num) + (i * 3)];
-		temp.reading[1] = raw[4 + (2 * num) + (i * 3)];
-		result.addSensor(temp);
-	}
-	return result;
-}
+
 commandData interpreter::interpretCommandData(const transmissionPacket& tp) {
 	commandData data;
 	unsigned char buf[2];
 	buf[0] = tp.getData()[1];
 	buf[1] = tp.getData()[2];
-	data.setParameter(bytesToInt(buf,2));
+	swap(buf);
+	data.setParameter(bytesToInt(buf, 2));
 	data.setCommand(tp.getData()[0]);
 	return data;
 }
@@ -445,4 +393,280 @@ frc5190::vector<transmissionPacket> packetBuffer::getPackets() {
 		b.append(interpretRawData(temp));
 		delete[] temp;
 	}
+}
+//////////////////////////////////////////////////////////////////
+//							Sensor Info							//
+//////////////////////////////////////////////////////////////////
+
+unsigned char sensorInfo::getDataLength() const {
+	return length;
+}
+
+void sensorInfo::setDataLength(unsigned char length) {
+	this->length = length;
+}
+
+unsigned char sensorInfo::getStat() const {
+	return stat;
+}
+
+void sensorInfo::setStat(unsigned char stat) {
+	this->stat = stat;
+}
+
+unsigned char sensorInfo::getType() const {
+	return type;
+}
+
+unsigned char sensorInfo::getId() const {
+	return id;
+}
+
+void sensorInfo::setId(unsigned char id) {
+	this->id = id;
+}
+
+void sensorInfo::setType(unsigned char type) {
+	this->type = type;
+}
+
+const int sensorInfo::getLength() const {
+	return 4 + getDataLength();
+}
+const unsigned char* sensorInfo::toPacket() {
+	unsigned char dataLength = getDataLength();
+	unsigned char* buffer = new unsigned char[getLength()];
+	unsigned char* data = getBytes();
+	for (int i = 0; i < dataLength; ++i) {
+		buffer[i + 4] = data[i];
+	}
+	buffer[0] = getType();
+	buffer[1] = getId();
+	buffer[2] = getStat();
+	buffer[3] = getDataLength();
+	delete[] data;
+	return buffer;
+
+}
+
+//////////////////////////////////////////////////////////////////
+//							Sensor Data							//
+//////////////////////////////////////////////////////////////////
+navXSensor::navXSensor() {
+	setType(0);
+	setDataLength(36);
+	this->altitude = 0;
+	this->barometricPressure = 0;
+	this->fusedHeading = 0;
+	this->linearAccelX = 0;
+	this->linearAccelY = 0;
+	this->linearAccelZ = 0;
+	this->magnetometerX = 0;
+	this->magnetometerY = 0;
+	this->temperature = 0;
+}
+float navXSensor::getAltitude() const {
+	return altitude;
+}
+
+void navXSensor::setAltitude(float altitude) {
+	this->altitude = altitude;
+}
+
+float navXSensor::getBarometricPressure() const {
+	return barometricPressure;
+}
+
+void navXSensor::setBarometricPressure(float barometricPressure) {
+	this->barometricPressure = barometricPressure;
+}
+
+float navXSensor::getFusedHeading() const {
+	return fusedHeading;
+}
+
+void navXSensor::setFusedHeading(float fusedHeading) {
+	this->fusedHeading = fusedHeading;
+}
+
+float navXSensor::getLinearAccelX() const {
+	return linearAccelX;
+}
+
+void navXSensor::setLinearAccelX(float linearAccelX) {
+	this->linearAccelX = linearAccelX;
+}
+
+float navXSensor::getLinearAccelY() const {
+	return linearAccelY;
+}
+
+void navXSensor::setLinearAccelY(float linearAccelY) {
+	this->linearAccelY = linearAccelY;
+}
+
+float navXSensor::getMagnetometerX() const {
+	return magnetometerX;
+}
+
+void navXSensor::setMagnetometerX(float magnetometerX) {
+	this->magnetometerX = magnetometerX;
+}
+
+float navXSensor::getMagnetometerY() const {
+	return magnetometerY;
+}
+
+void navXSensor::setMagnetometerY(float magnetometerY) {
+	this->magnetometerY = magnetometerY;
+}
+
+float navXSensor::getTemperature() const {
+	return temperature;
+}
+
+float navXSensor::getLinearAccelZ() const {
+	return linearAccelZ;
+}
+
+void navXSensor::setLinearAccelZ(float linearAccelZ) {
+	this->linearAccelZ = linearAccelZ;
+}
+
+void navXSensor::setTemperature(float temperature) {
+	this->temperature = temperature;
+}
+
+unsigned char* navXSensor::getBytes() {
+	unsigned char* buffer = new unsigned char[getDataLength()];
+	unsigned char* converterBuf;
+	converterBuf = convertToByte(this->altitude);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,0,4);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->barometricPressure);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,4,8);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->fusedHeading);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,8,12);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->temperature);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,12,16);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->linearAccelX);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,16,20);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->linearAccelY);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,20,24);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->linearAccelZ);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer, converterBuf, 24,28);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->magnetometerX);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer, converterBuf, 28,32);
+	delete[] converterBuf;
+	converterBuf = convertToByte(this->magnetometerY);
+	endianConverter(converterBuf,4);
+	cpyBytes(buffer,converterBuf,32,36);
+	delete[] converterBuf;
+	return buffer;
+}
+
+basicEncoder::basicEncoder() {
+	setType(1);
+	setDataLength(5);
+	this->counts = 0;
+	this->direction = 0;
+}
+
+long basicEncoder::getCounts() const {
+	return counts;
+}
+
+void basicEncoder::setCounts(long counts) {
+	this->counts = counts;
+}
+
+unsigned char basicEncoder::getDirection() const {
+	return direction;
+}
+
+void basicEncoder::setDirection(unsigned char direction) {
+	this->direction = direction;
+}
+
+unsigned char* basicEncoder::getBytes() {
+	unsigned char* buffer = new unsigned char[getDataLength()];
+	unsigned char* converter = convertToByte(this->counts);
+	endianConverter(converter,4);
+	cpyBytes(buffer,converter,0,4);
+	delete[] converter;
+	buffer[4]=direction;
+	return buffer;
+}
+
+basicPotentiometer::basicPotentiometer() {
+	setType(2);
+	setDataLength(4);
+	this->angle = 0;
+}
+
+float basicPotentiometer::getAngle() const {
+	return angle;
+}
+
+void basicPotentiometer::setAngle(float angle) {
+	this->angle = angle;
+}
+
+unsigned char* basicPotentiometer::getBytes() {
+	unsigned char* buf = convertToByte(this->angle);
+	endianConverter(buf,4);
+	return buf;
+}
+
+basicDistance::basicDistance() {
+	setType(3);
+	setDataLength(4);
+	this->distance = 0;
+}
+float basicDistance::getDistance() const {
+	return distance;
+}
+
+void basicDistance::setDistance(float distance) {
+	this->distance = distance;
+}
+
+unsigned char* basicDistance::getBytes() {
+	unsigned char* buffer = convertToByte(this->distance);
+	endianConverter(buffer,4);
+	return buffer;
+}
+
+switchSensor::switchSensor() {
+	setType(4);
+	setDataLength(1);
+	this->switchValue=0;
+}
+
+unsigned char switchSensor::getSwitchValue() const {
+	return switchValue;
+}
+
+void switchSensor::setSwitchValue(unsigned char switchValue) {
+	this->switchValue = switchValue;
+}
+
+unsigned char* switchSensor::getBytes() {
+	unsigned char* buffer = new unsigned char[1];
+	buffer[0] = this->switchValue;
+	return buffer;
 }
