@@ -12,10 +12,14 @@
 #define nullptr 0
 #endif
 
-
 int bytesToInt(const unsigned char* data, int length);
 void intToBytes(const int data, unsigned char* result);
-
+void swap(unsigned char bytes[2]);
+template <typename T>
+unsigned char* convertToByte(T data);
+unsigned char* cpyBytes(const unsigned char* bytes, const int length);
+void cpyBytes(unsigned char* target, const unsigned char* src, const int start, const int end);
+void endianConverter(unsigned char* data, const int length);
 /**
  * the transmissionData abstract class
  * The datagram of the transmission protocol, it is encapsulated with in the transmissionPacket
@@ -43,7 +47,7 @@ public:
  * The meta packet to be send that includes transmissionData
  */
 class transmissionPacket {
-protected:
+private:
 	unsigned char messageType;
 	unsigned char messageLength;
 	unsigned char* messageData;
@@ -120,7 +124,7 @@ public:
  * @see transmissionData
  */
 class keepStateData: public transmissionData {
-protected:
+private:
 	unsigned char state;
 	unsigned char sequence[2];
 public:
@@ -183,7 +187,7 @@ public:
  * @see transmissionData
  */
 class commandData: public transmissionData {
-protected:
+private:
 	unsigned char command;
 	unsigned char param[2];
 public:
@@ -238,122 +242,124 @@ public:
 	const int getLength() const;
 };
 
-
-/**
- * the sensor data
- * the sensor data which goes in sensorData datagram
- * @see sensorData
- */
-struct sensorInfo {
+class sensorInfo: public transmissionData {
+private:
+	unsigned char type;
 	unsigned char id;
 	unsigned char stat;
-	char reading[2];
-	/**
-	 * equal operator
-	 * @param info the struct to compare
-	 * @return result
-	 */
-	bool operator ==(const sensorInfo& info);
-	/**
-	 * not equal operator
-	 * @param info the struct to compare
-	 * @return result
-	 */
-	bool operator !=(const sensorInfo& info);
+	unsigned char length;
+protected:
+	unsigned char getDataLength() const;
+	void setDataLength(unsigned char length);
+	unsigned char getType() const;
+	void setType(unsigned char type);
+	virtual unsigned char* getBytes() = 0;
+public:
+	unsigned char getStat() const;
+	void setStat(unsigned char stat);
+	unsigned char getId() const;
+	void setId(unsigned char id);
+	const unsigned char* toPacket();
+	const int getLength() const;
 };
 
-/**
- * the sensor data datagram
- * the sensor data datagram which the arduino sends to roborio constantly
- * @see transmissionData
- */
-class sensorData: public transmissionData {
+class navXSensor: public sensorInfo {
+private:
+	float linearAccelX;
+	float linearAccelY;
+	float linearAccelZ;
+	float barometricPressure;
+	float altitude;
+	float fusedHeading;
+	float temperature;
+	float magnetometerX;
+	float magnetometerY;
 protected:
-	unsigned char arduinoStat;
-	unsigned char sensorNum;
-	frc5190::vector<sensorInfo> data;
+	unsigned char* getBytes();
 public:
-	/**
-	 * default ctor
-	 */
-	sensorData();
-	/**
-	 * copy ctor
-	 * @param src object to copy from
-	 */
-	sensorData(const sensorData& data);
-	/**
-	 * assignment operator
-	 * @param src object to assign from
-	 * @return this
-	 */
-	sensorData& operator=(const sensorData& src);
-	/**
-	 * comparison operator
-	 * @param src the object to compare
-	 * @return result
-	 */
-	bool operator ==(const sensorData& src);
-	/**
-	 * sets the status of arduino in the datagram, 0 for error, 1 for good
-	 * @param stat the status
-	 */
-	void setArduinoStat(const unsigned char stat);
-	/**
-	 * gets the status of arduino
-	 * @return the status of arduino
-	 */
-	unsigned char getArduinoStat() const;
-	/**
-	 * gets the number of sensor added
-	 * @return the number of sensor
-	 */
-	unsigned char getSensorNum() const;
-	/**
-	 * adds a sensor data to the datagram
-	 * @data the new sensor data
-	 */
-	void addSensor(const sensorInfo& data);
-	/**
-	 * gets all the sensor data added
-	 * @return sensor data
-	 */
-	const sensorInfo* getSensors() const;
-	/**
-	 * see super class
-	 */
-	const unsigned char* toPacket();
-	/**
-	 * see super class
-	 */
-	const int getLength() const;
-	/**
-	 * free the memory
-	 */
-	~sensorData();
+	navXSensor();
+	float getAltitude() const;
+	void setAltitude(float altitude);
+	float getBarometricPressure() const;
+	void setBarometricPressure(float barometricPressure);
+	float getFusedHeading() const;
+	void setFusedHeading(float fusedHeading);
+	float getLinearAccelX() const;
+	void setLinearAccelX(float linearAccelX);
+	float getLinearAccelY() const;
+	void setLinearAccelY(float linearAccelY);
+	float getMagnetometerX() const;
+	void setMagnetometerX(float magnetometerX);
+	float getMagnetometerY() const;
+	void setMagnetometerY(float magnetometerY);
+	float getTemperature() const;
+	void setTemperature(float temperature);
+	float getLinearAccelZ() const;
+	void setLinearAccelZ(float linearAccelZ);
 };
+
+class basicEncoder: public sensorInfo {
+private:
+	long counts;
+	unsigned char direction;
+protected:
+	unsigned char* getBytes();
+public:
+	basicEncoder();
+	long getCounts() const;
+	void setCounts(long counts);
+	unsigned char getDirection() const;
+	void setDirection(unsigned char direction);
+};
+
+class basicPotentiometer: public sensorInfo {
+private:
+	float angle;
+protected:
+	unsigned char* getBytes();
+public:
+	basicPotentiometer();
+	float getAngle() const;
+	void setAngle(float angle);
+};
+
+class basicDistance: public sensorInfo {
+private:
+	float distance;
+protected:
+	unsigned char* getBytes();
+public:
+	basicDistance();
+	float getDistance() const;
+	void setDistance(float distance);
+};
+
+class switchSensor : public sensorInfo {
+private:
+	unsigned char switchValue;
+protected:
+	unsigned char* getBytes();
+public:
+	switchSensor();
+	unsigned char getSwitchValue() const;
+	void setSwitchValue(unsigned char switchValue);
+};
+
 class interpreter {
 public:
-/**
- * To convert from the transmission packet to a keepState datagram,
- * @param tp the received transmission packet
- * @return the interpreted data
- */
-static keepStateData interpretStatSeq(const transmissionPacket& tp);
-/**
- * To convert from the transmission packet to a sensorData datagram
- * @param tp the received transmission packet
- * @return the interpreted data
- */
-static sensorData interpretSensData(const transmissionPacket& tp);
-/**
- * To convert from the transmission packet to a commandData
- * @param tp the received transmission packet
- * @return the interpreted data
- */
-static commandData interpretCommandData(const transmissionPacket& tp);
+	/**
+	 * To convert from the transmission packet to a keepState datagram,
+	 * @param tp the received transmission packet
+	 * @return the interpreted data
+	 */
+	static keepStateData interpretStatSeq(const transmissionPacket& tp);
+	/**
+	 * To convert from the transmission packet to a commandData
+	 * @param tp the received transmission packet
+	 * @return the interpreted data
+	 */
+	static commandData interpretCommandData(const transmissionPacket& tp);
 };
-
 
 class packetBuffer {
 protected:

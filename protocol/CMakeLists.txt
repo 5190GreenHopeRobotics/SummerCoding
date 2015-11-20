@@ -9,7 +9,3 @@ include_directories ("${PROJECT_SOURCE_DIR}")
 add_definitions(${CFLAG})
 
 add_library(transmission SHARED transmission.cpp)
-
-add_executable(test test.cpp)
-
-target_link_libraries(test transmission)
