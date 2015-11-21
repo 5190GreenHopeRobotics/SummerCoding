@@ -7,26 +7,12 @@
 #include "transmission.h"
 
 void endianConverter(unsigned char* data, const int length) {
-	for(int i=0;i<length/2;++i) {
+	for (int i = 0; i < length / 2; ++i) {
 		unsigned char buf;
 		buf = data[i];
-		data[i] = data[length-1-i];
-		data[length-1-i] = buf;
+		data[i] = data[length - 1 - i];
+		data[length - 1 - i] = buf;
 	}
-}
-
-template<typename T>
-unsigned char* convertToByte(T data) {
-	unsigned char* buf = new unsigned char[sizeof(data)];
-	union {
-		T d;
-		unsigned char array[sizeof(data)];
-	} converter;
-	converter.d = data;
-	for (int i = 0; i < sizeof(data); ++i) {
-		buf[i] = converter.array[i];
-	}
-	return buf;
 }
 
 int bytesToInt(const unsigned char* b, int length) {
@@ -59,8 +45,15 @@ unsigned char* cpyBytes(const unsigned char* bytes, const int length) {
 
 void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
 		const int end) {
-	for(int i=start;i<end;++i) {
+	for (int i = start; i < end; ++i) {
 		target[i] = src[i];
+	}
+}
+
+void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
+		const int end, const int size) {
+	for (int i = start, j = 0; i < end, j < size; ++i, ++j) {
+		target[i] = src[j];
 	}
 }
 
@@ -305,10 +298,6 @@ const int commandData::getLength() const {
 	return 3;
 }
 
-/////////////////////////////////////////////////////////////
-//						SensorInfo						   //
-/////////////////////////////////////////////////////////////
-
 //////////////////////////////////////////////////////////////////////
 //								Interpreters				   		//
 //////////////////////////////////////////////////////////////////////
@@ -437,9 +426,7 @@ const unsigned char* sensorInfo::toPacket() {
 	unsigned char dataLength = getDataLength();
 	unsigned char* buffer = new unsigned char[getLength()];
 	unsigned char* data = getBytes();
-	for (int i = 0; i < dataLength; ++i) {
-		buffer[i + 4] = data[i];
-	}
+	cpyBytes(buffer, data, 4, getLength());
 	buffer[0] = getType();
 	buffer[1] = getId();
 	buffer[2] = getStat();
@@ -537,45 +524,97 @@ void navXSensor::setTemperature(float temperature) {
 	this->temperature = temperature;
 }
 
-unsigned char* navXSensor::getBytes() {
-	unsigned char* buffer = new unsigned char[getDataLength()];
+void navXSensor::fillAltitude(unsigned char* buf) {
 	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->altitude);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,0,4);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 0, 4, 4);
 	delete[] converterBuf;
+}
+
+void navXSensor::fillBarometricPressure(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->barometricPressure);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,4,8);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 4, 8, 4);
 	delete[] converterBuf;
+}
+
+void navXSensor::fillFusedHeading(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->fusedHeading);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,8,12);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 8, 12, 4);
 	delete[] converterBuf;
+}
+
+void navXSensor::fillTemperature(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->temperature);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,12,16);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 12, 16, 4);
 	delete[] converterBuf;
+
+}
+void navXSensor::fillLinearAccelX(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->linearAccelX);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,16,20);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 16, 20, 4);
 	delete[] converterBuf;
+}
+void navXSensor::fillLinearAccelY(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->linearAccelY);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,20,24);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 20, 24, 4);
 	delete[] converterBuf;
+}
+
+void navXSensor::fillLinearAccelZ(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->linearAccelZ);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer, converterBuf, 24,28);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 24, 28, 4);
 	delete[] converterBuf;
+}
+
+void navXSensor::fillMagnetometerX(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->magnetometerX);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer, converterBuf, 28,32);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 28, 32, 4);
 	delete[] converterBuf;
+}
+
+void navXSensor::fillMagnetometerY(unsigned char* buf) {
+	unsigned char* converterBuf;
 	converterBuf = convertToByte(this->magnetometerY);
-	endianConverter(converterBuf,4);
-	cpyBytes(buffer,converterBuf,32,36);
+	endianConverter(converterBuf, 4);
+	cpyBytes(buf, converterBuf, 32, 36, 4);
 	delete[] converterBuf;
+}
+
+unsigned char* navXSensor::getBytes() {
+	unsigned char* buffer = new unsigned char[getDataLength()];
+	fillAltitude(buffer);
+
+	fillBarometricPressure(buffer);
+
+	fillFusedHeading(buffer);
+
+	fillTemperature(buffer);
+
+	fillLinearAccelX(buffer);
+
+	fillLinearAccelY(buffer);
+
+	fillLinearAccelZ(buffer);
+
+	fillMagnetometerX(buffer);
+
+	fillMagnetometerY(buffer);
+
 	return buffer;
 }
 
@@ -605,10 +644,10 @@ void basicEncoder::setDirection(unsigned char direction) {
 unsigned char* basicEncoder::getBytes() {
 	unsigned char* buffer = new unsigned char[getDataLength()];
 	unsigned char* converter = convertToByte(this->counts);
-	endianConverter(converter,4);
-	cpyBytes(buffer,converter,0,4);
+	endianConverter(converter, 4);
+	cpyBytes(buffer, converter, 0, 4);
 	delete[] converter;
-	buffer[4]=direction;
+	buffer[4] = direction;
 	return buffer;
 }
 
@@ -628,7 +667,7 @@ void basicPotentiometer::setAngle(float angle) {
 
 unsigned char* basicPotentiometer::getBytes() {
 	unsigned char* buf = convertToByte(this->angle);
-	endianConverter(buf,4);
+	endianConverter(buf, 4);
 	return buf;
 }
 
@@ -647,14 +686,14 @@ void basicDistance::setDistance(float distance) {
 
 unsigned char* basicDistance::getBytes() {
 	unsigned char* buffer = convertToByte(this->distance);
-	endianConverter(buffer,4);
+	endianConverter(buffer, 4);
 	return buffer;
 }
 
 switchSensor::switchSensor() {
 	setType(4);
 	setDataLength(1);
-	this->switchValue=0;
+	this->switchValue = 0;
 }
 
 unsigned char switchSensor::getSwitchValue() const {

@@ -15,10 +15,13 @@
 int bytesToInt(const unsigned char* data, int length);
 void intToBytes(const int data, unsigned char* result);
 void swap(unsigned char bytes[2]);
-template <typename T>
+template<typename T>
 unsigned char* convertToByte(T data);
 unsigned char* cpyBytes(const unsigned char* bytes, const int length);
-void cpyBytes(unsigned char* target, const unsigned char* src, const int start, const int end);
+void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
+		const int end);
+void cpyBytes(unsigned char* target, const unsigned char* src,
+		const int start, const int end, const int size);
 void endianConverter(unsigned char* data, const int length);
 /**
  * the transmissionData abstract class
@@ -274,6 +277,16 @@ private:
 	float temperature;
 	float magnetometerX;
 	float magnetometerY;
+
+	void fillLinearAccelX(unsigned char* buf);
+	void fillLinearAccelY(unsigned char* buf);
+	void fillLinearAccelZ(unsigned char* buf);
+	void fillBarometricPressure(unsigned char* buf);
+	void fillAltitude(unsigned char* buf);
+	void fillFusedHeading(unsigned char* buf);
+	void fillTemperature(unsigned char* buf);
+	void fillMagnetometerX(unsigned char* buf);
+	void fillMagnetometerY(unsigned char* buf);
 protected:
 	unsigned char* getBytes();
 public:
@@ -334,7 +347,7 @@ public:
 	void setDistance(float distance);
 };
 
-class switchSensor : public sensorInfo {
+class switchSensor: public sensorInfo {
 private:
 	unsigned char switchValue;
 protected:
@@ -384,4 +397,17 @@ public:
 	frc5190::vector<transmissionPacket> getPackets();
 };
 
+template<typename T>
+unsigned char* convertToByte(T data) {
+	unsigned char* buf = new unsigned char[sizeof(data)];
+	union {
+		T d;
+		unsigned char array[sizeof(data)];
+	} converter;
+	converter.d = data;
+	for (int i = 0; i < sizeof(data); ++i) {
+		buf[i] = converter.array[i];
+	}
+	return buf;
+}
 #endif /* TRANSMISSION_H_ */
