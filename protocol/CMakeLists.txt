@@ -8,8 +8,8 @@ include_directories ("${PROJECT_SOURCE_DIR}")
 
 add_definitions(${CFLAG})
 
-add_library(transmission SHARED transmission.cpp)
+add_library(transmission SHARED transmission.cpp utils.cpp)
 
-add_executable(testLib test.cpp)
+add_executable(protocol_generator ui.cpp)
 
-target_link_libraries(testLib transmission)
+target_link_libraries(protocol_generator transmission)

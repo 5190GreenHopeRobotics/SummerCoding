@@ -108,4 +108,4 @@ The Data Segment:
 
 In the order follow:
 
--switchValue: 1 Byte value : 1 for on, and 0 for off.
+-switchValue: 1 Byte value : 1 for on, and 2 for off.

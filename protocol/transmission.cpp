@@ -426,7 +426,7 @@ const unsigned char* sensorInfo::toPacket() {
 	unsigned char dataLength = getDataLength();
 	unsigned char* buffer = new unsigned char[getLength()];
 	unsigned char* data = getBytes();
-	cpyBytes(buffer, data, 4, getLength());
+	cpyBytes(buffer, data, 4, 40, 36);
 	buffer[0] = getType();
 	buffer[1] = getId();
 	buffer[2] = getStat();
