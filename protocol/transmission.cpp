@@ -6,8 +6,8 @@
  */
 #include "transmission.h"
 
-void endianConverter(unsigned char* data, const int length) {
-	for (int i = 0; i < length / 2; ++i) {
+void endianConverter(unsigned char* data, const int16_t length) {
+	for (int16_t i = 0; i < length / 2; ++i) {
 		unsigned char buf;
 		buf = data[i];
 		data[i] = data[length - 1 - i];
@@ -15,16 +15,16 @@ void endianConverter(unsigned char* data, const int length) {
 	}
 }
 
-int bytesToInt(const unsigned char* b, int length) {
-	int val = (b[1] << 8) + b[0];
+int16_t bytesToint16_t(const unsigned char* b, int16_t length) {
+	int16_t val = (b[1] << 8) + b[0];
 	return val;
 }
 
-void intToBytes(const int data, unsigned char* result) {
-	int buffer = data;
-	int size = sizeof(int);
+void int16_tToBytes(const int16_t data, unsigned char* result) {
+	int16_t buffer = data;
+	int16_t size = sizeof(int16_t);
 	unsigned char* resultBuffer = (unsigned char*) &buffer;
-	for (int i = 0; i < size; ++i) {
+	for (int16_t i = 0; i < size; ++i) {
 		result[i] = resultBuffer[i];
 	}
 }
@@ -35,24 +35,24 @@ void swap(unsigned char bytes[2]) {
 	bytes[1] = buf;
 }
 
-unsigned char* cpyBytes(const unsigned char* bytes, const int length) {
+unsigned char* cpyBytes(const unsigned char* bytes, const int16_t length) {
 	unsigned char* buf = new unsigned char[length];
-	for (int i = 0; i < length; ++i) {
+	for (int16_t i = 0; i < length; ++i) {
 		buf[i] = bytes[i];
 	}
 	return buf;
 }
 
-void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
-		const int end) {
-	for (int i = start; i < end; ++i) {
+void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
+		const int16_t end) {
+	for (int16_t i = start; i < end; ++i) {
 		target[i] = src[i];
 	}
 }
 
-void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
-		const int end, const int size) {
-	for (int i = start, j = 0; i < end, j < size; ++i, ++j) {
+void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
+		const int16_t end, const int16_t size) {
+	for (int16_t i = start, j = 0; i < end, j < size; ++i, ++j) {
 		target[i] = src[j];
 	}
 }
@@ -70,7 +70,7 @@ transmissionPacket::transmissionPacket(const transmissionPacket& src) {
 	this->messageType = src.messageType;
 	this->messageLength = src.messageLength;
 	this->messageData = new unsigned char[messageLength + 1];
-	for (int i = 0; i < messageLength; i++) {
+	for (int16_t i = 0; i < messageLength; i++) {
 		messageData[i] = src.messageData[i];
 	}
 }
@@ -89,7 +89,7 @@ transmissionPacket& transmissionPacket::operator =(
 		delete[] this->messageData;
 	}
 	this->messageData = new unsigned char[this->messageLength + 1];
-	for (int i = 0; i < messageLength; i++) {
+	for (int16_t i = 0; i < messageLength; i++) {
 		messageData[i] = src.messageData[i];
 	}
 	return *this;
@@ -114,7 +114,7 @@ void transmissionPacket::setData(transmissionData& data) {
 	const unsigned char* packet = data.toPacket();
 	messageLength = data.getLength();
 	messageData = new unsigned char[messageLength];
-	for (int i = 0; i < messageLength; ++i) {
+	for (int16_t i = 0; i < messageLength; ++i) {
 		messageData[i] = packet[i];
 	}
 	delete[] packet;
@@ -133,7 +133,7 @@ unsigned char* transmissionPacket::toPacket() const {
 	packet[0] = messageType;
 	packet[1] = messageLength;
 	if (messageData != nullptr) {
-		for (int i = 2; i < messageLength + 2; ++i) {
+		for (int16_t i = 2; i < messageLength + 2; ++i) {
 			packet[i] = messageData[i - 2];
 		}
 		return packet;
@@ -167,14 +167,14 @@ keepStateData::keepStateData() {
 }
 
 keepStateData::keepStateData(const keepStateData& src) {
-	for (int i = 0; i < 2; ++i) {
+	for (int16_t i = 0; i < 2; ++i) {
 		sequence[i] = src.sequence[i];
 	}
 	this->state = src.state;
 }
 
 keepStateData& keepStateData::operator =(const keepStateData& src) {
-	for (int i = 0; i < 2; ++i) {
+	for (int16_t i = 0; i < 2; ++i) {
 		sequence[i] = src.sequence[i];
 	}
 	this->state = src.state;
@@ -185,7 +185,7 @@ bool keepStateData::operator ==(const keepStateData& src) {
 	bool st = false;
 	bool seq = true;
 	st = (state == src.getState());
-	for (int i = 0; i < 2; ++i) {
+	for (int16_t i = 0; i < 2; ++i) {
 		if (sequence[i] != src.sequence[i]) {
 			seq = false;
 			break;
@@ -202,14 +202,12 @@ unsigned char keepStateData::getState() const {
 	return state;
 }
 
-void keepStateData::setSequence(const unsigned char* sequence) {
-	for (int i = 0; i < 2; ++i) {
-		this->sequence[i] = sequence[i];
-	}
+void keepStateData::setSequence(const int16_t sequence) {
+    int16_tToBytes(sequence, this->sequence);
 }
 
-const int keepStateData::getSequence() const {
-	return bytesToInt(sequence, 2);
+const int16_t keepStateData::getSequence() const {
+	return bytesToint16_t(sequence, 2);
 }
 
 const unsigned char* keepStateData::toPacket() {
@@ -217,14 +215,14 @@ const unsigned char* keepStateData::toPacket() {
 	packet[0] = state;
 	unsigned char* buf = cpyBytes(sequence, 2);
 	swap(buf);
-	for (int i = 1; i < 3; ++i) {
+	for (int16_t i = 1; i < 3; ++i) {
 		packet[i] = buf[i - 1];
 	}
 	delete[] buf;
 	return packet;
 }
 
-const int keepStateData::getLength() const {
+const int16_t keepStateData::getLength() const {
 	return 3;
 }
 
@@ -251,7 +249,7 @@ bool commandData::operator ==(const commandData& src) {
 	bool commandEqual;
 	bool paramEqual;
 	commandEqual = (this->command == src.command);
-	for (int i = 0; i < 2; ++i) {
+	for (int16_t i = 0; i < 2; ++i) {
 		if (param[i] != src.param[i]) {
 			paramEqual = false;
 			break;
@@ -268,18 +266,18 @@ unsigned char commandData::getCommand() const {
 	return command;
 }
 
-void commandData::setParameter(const int param) {
+void commandData::setParameter(const int16_t param) {
 	unsigned char* buffer = new unsigned char[2];
-	intToBytes(param, buffer);
-	for (int i = 0; i < 2; ++i) {
+	int16_tToBytes(param, buffer);
+	for (int16_t i = 0; i < 2; ++i) {
 		this->param[i] = buffer[i];
 	}
 	delete[] buffer;
 	return;
 }
 
-const int commandData::getParameter() const {
-	return bytesToInt(param, 2);
+const int16_t commandData::getParameter() const {
+	return bytesToint16_t(param, 2);
 }
 
 const unsigned char* commandData::toPacket() {
@@ -287,19 +285,19 @@ const unsigned char* commandData::toPacket() {
 	data[0] = command;
 	unsigned char* buf = cpyBytes(param, 2);
 	swap(buf);
-	for (int i = 1; i < 3; ++i) {
+	for (int16_t i = 1; i < 3; ++i) {
 		data[i] = buf[i - 1];
 	}
 	delete[] buf;
 	return data;
 }
 
-const int commandData::getLength() const {
+const int16_t commandData::getLength() const {
 	return 3;
 }
 
 //////////////////////////////////////////////////////////////////////
-//								Interpreters				   		//
+//								interpreters				   		//
 //////////////////////////////////////////////////////////////////////
 
 keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
@@ -311,7 +309,7 @@ keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
 	sequenceBuffer[0] = buf[1];
 	sequenceBuffer[1] = buf[2];
 	swap(sequenceBuffer);
-	ksd.setSequence(sequenceBuffer);
+	ksd.setSequence(bytesToint16_t(sequenceBuffer,2));
 	delete[] buf;
 	delete[] sequenceBuffer;
 	return ksd;
@@ -323,7 +321,7 @@ commandData interpreter::interpretCommandData(const transmissionPacket& tp) {
 	buf[0] = tp.getData()[1];
 	buf[1] = tp.getData()[2];
 	swap(buf);
-	data.setParameter(bytesToInt(buf, 2));
+	data.setParameter(bytesToint16_t(buf, 2));
 	data.setCommand(tp.getData()[0]);
 	return data;
 }
@@ -337,7 +335,7 @@ transmissionPacket packetBuffer::interpretRawData(const unsigned char* packet) {
 	unsigned char type = 0;
 	type = packet[0];
 	unsigned char* data = new unsigned char[length];
-	for (int i = 0; i < length; ++i) {
+	for (int16_t i = 0; i < length; ++i) {
 		data[i] = packet[i + 2];
 	}
 	transmissionPacket result;
@@ -351,8 +349,8 @@ void packetBuffer::addByte(unsigned char b) {
 }
 
 unsigned char* packetBuffer::getNext() {
-	int packetSize = 0;
-	int bufSize = buf.getSize();
+	int16_t packetSize = 0;
+	int16_t bufSize = buf.getSize();
 	if (bufSize < 4) {
 		return nullptr;
 	}
@@ -361,10 +359,10 @@ unsigned char* packetBuffer::getNext() {
 		return nullptr;
 	}
 	unsigned char* p = new unsigned char[packetSize];
-	for (int i = 0; i < packetSize; ++i) {
+	for (int16_t i = 0; i < packetSize; ++i) {
 		p[i] = buf[i];
 	}
-	for (int i = packetSize - 1; i > -1; --i) {
+	for (int16_t i = packetSize - 1; i > -1; --i) {
 		buf.remove(i);
 	}
 	return p;
@@ -419,7 +417,7 @@ void sensorInfo::setType(unsigned char type) {
 	this->type = type;
 }
 
-const int sensorInfo::getLength() const {
+const int16_t sensorInfo::getLength() const {
 	return 4 + getDataLength();
 }
 const unsigned char* sensorInfo::toPacket() {

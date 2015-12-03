@@ -8,21 +8,28 @@
 #ifndef TRANSMISSION_H_
 #define TRANSMISSION_H_
 #include "vector.h"
+#ifdef COMPUTER
+#include <cstdint>
+#endif // COMPUTER
 #ifndef nullptr
 #define nullptr 0
 #endif
 
-int bytesToInt(const unsigned char* data, int length);
-void intToBytes(const int data, unsigned char* result);
+#ifndef int16_t
+#define int16_t int
+#endif // int16_t
+
+int16_t bytesToint16_t(const unsigned char* data, int16_t length);
+void int16_tToBytes(const int16_t data, unsigned char* result);
 void swap(unsigned char bytes[2]);
 template<typename T>
 unsigned char* convertToByte(T data);
-unsigned char* cpyBytes(const unsigned char* bytes, const int length);
-void cpyBytes(unsigned char* target, const unsigned char* src, const int start,
-		const int end);
+unsigned char* cpyBytes(const unsigned char* bytes, const int16_t length);
+void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
+		const int16_t end);
 void cpyBytes(unsigned char* target, const unsigned char* src,
-		const int start, const int end, const int size);
-void endianConverter(unsigned char* data, const int length);
+		const int16_t start, const int16_t end, const int16_t size);
+void endianConverter(unsigned char* data, const int16_t length);
 /**
  * the transmissionData abstract class
  * The datagram of the transmission protocol, it is encapsulated with in the transmissionPacket
@@ -30,7 +37,7 @@ void endianConverter(unsigned char* data, const int length);
 class transmissionData {
 public:
 	/**
-	 * a function that flattens this object to raw byte, user should free the returned pointer to avoid memory leaks
+	 * a function that flattens this object to raw byte, user should free the returned point16_ter to avoid memory leaks
 	 * @return the raw byte values
 	 */
 	virtual const unsigned char* toPacket() = 0;
@@ -38,7 +45,7 @@ public:
 	 * an getter that access the length of the datagram
 	 * @return the length of the data
 	 */
-	virtual const int getLength() const = 0;
+	virtual const int16_t getLength() const = 0;
 	/**
 	 * does nothing
 	 */
@@ -86,7 +93,7 @@ public:
 	 */
 	unsigned char getMessageType() const;
 	/**
-	 * the function that includes the transmission datagram into this object. It also set the message length based on data
+	 * the function that includes the transmission datagram int16_to this object. It also set the message length based on data
 	 * @param data the data to include
 	 *
 	 */
@@ -167,12 +174,12 @@ public:
 	 * the setter that sets the sequence which should with each packet
 	 * @param sequence the sequence num
 	 */
-	void setSequence(const unsigned char* sequence);
+	void setSequence(const int16_t sequence);
 	/**
 	 * the getter that gets the sequence
 	 * @return the sequence num
 	 */
-	const int getSequence() const;
+	const int16_t getSequence() const;
 
 	/**
 	 * see super class
@@ -181,7 +188,7 @@ public:
 	/**
 	 * see super class
 	 */
-	const int getLength() const;
+	const int16_t getLength() const;
 };
 
 /**
@@ -229,12 +236,12 @@ public:
 	 * sets the parameter for the command, set to 0 if none
 	 * @param param the parameter
 	 */
-	void setParameter(const int param);
+	void setParameter(const int16_t param);
 	/**
 	 * gets the parameter field
 	 * @return the parameter
 	 */
-	const int getParameter() const;
+	const int16_t getParameter() const;
 	/**
 	 * see super class
 	 */
@@ -242,7 +249,7 @@ public:
 	/**
 	 * see super class
 	 */
-	const int getLength() const;
+	const int16_t getLength() const;
 };
 
 class sensorInfo: public transmissionData {
@@ -263,7 +270,7 @@ public:
 	unsigned char getId() const;
 	void setId(unsigned char id);
 	const unsigned char* toPacket();
-	const int getLength() const;
+	const int16_t getLength() const;
 };
 
 class navXSensor: public sensorInfo {
@@ -378,7 +385,7 @@ class packetBuffer {
 protected:
 	frc5190::vector<unsigned char> buf;
 	/**
-	 * convert raw bytes into a transmissionPacket which needs to be processed further, this is first step
+	 * convert raw bytes int16_to a transmissionPacket which needs to be processed further, this is first step
 	 * @param packet the raw bytes
 	 * @return converted object
 	 */
@@ -405,7 +412,7 @@ unsigned char* convertToByte(T data) {
 		unsigned char array[sizeof(data)];
 	} converter;
 	converter.d = data;
-	for (int i = 0; i < sizeof(data); ++i) {
+	for (int16_t i = 0; i < sizeof(data); ++i) {
 		buf[i] = converter.array[i];
 	}
 	return buf;

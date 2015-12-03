@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.6)
 
 project(protocol)
 
-set(CFLAG -O2)
+set(CFLAG -O2 -DCOMPUTER -std=c++11)
 
 include_directories ("${PROJECT_SOURCE_DIR}")
 

@@ -3,7 +3,9 @@
 
 #include "transmission.h"
 
-
+long getLongStdin();
+float getFloatStdin();
+int getIntStdin();
 std::string getStringFromStdin();
 keepStateData getKeepStateDataStdin();
 commandData getCommandDataStdin();
@@ -12,5 +14,6 @@ basicEncoder getEncoderStdin();
 basicPotentiometer getPotStdin();
 basicDistance getDistanceStdin();
 switchSensor getSwitchStdin();
-
+void processCommand(const std::string& command);
+void getStatID(sensorInfo& data);
 #endif // UI_HH_INCLUDED
