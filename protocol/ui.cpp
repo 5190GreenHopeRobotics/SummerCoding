@@ -179,36 +179,43 @@ void processCommand(const std::string& command) {
     bool commandExecuted = false;
     std::string fileName;
     if(command == "keepStatePacket") {
+        buffer.setMessageType(1);
         keepStateData ksd = getKeepStateDataStdin();
         buffer.setData(ksd);
         commandExecuted = true;
     }
     if(command == "commandDataPacket") {
+        buffer.setMessageType(2);
         commandData cmd = getCommandDataStdin();
         buffer.setData(cmd);
         commandExecuted = true;
     }
     if(command == "navXPacket") {
+        buffer.setMessageType(3);
         navXSensor nvx = getNavXStdin();
         buffer.setData(nvx);
         commandExecuted = true;
     }
     if(command == "encoderPacket") {
+        buffer.setMessageType(3);
         basicEncoder enc = getEncoderStdin();
         buffer.setData(enc);
         commandExecuted = true;
     }
     if(command == "potPacket") {
+        buffer.setMessageType(3);
         basicPotentiometer pot = getPotStdin();
         buffer.setData(pot);
         commandExecuted = true;
     }
     if(command == "distanceSensorPacket") {
+        buffer.setMessageType(3);
         basicDistance dis = getDistanceStdin();
         buffer.setData(dis);
         commandExecuted = true;
     }
     if(command == "switchPacket") {
+        buffer.setMessageType(3);
         switchSensor switchData = getSwitchStdin();
         buffer.setData(switchData);
         commandExecuted = true;

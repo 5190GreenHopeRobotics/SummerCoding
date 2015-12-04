@@ -14,10 +14,10 @@ Keep State Data (1):
 |Status (1Byte)			|sequence (2 Byte int)	|
 +-----------------------+-----------------------+
 If roborio still on,
-Status = 1
+Status = 2
 
 Otherwise,
-Status = 0
+Status = 1
 
 Sequence:
 Increment by 1 every package.

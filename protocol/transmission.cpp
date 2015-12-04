@@ -458,7 +458,7 @@ const unsigned char* sensorInfo::toPacket() {
 //							Sensor Data							//
 //////////////////////////////////////////////////////////////////
 navXSensor::navXSensor() {
-	setType(0);
+	setType(1);
 	setDataLength(36);
 	this->altitude = 0;
 	this->barometricPressure = 0;
@@ -661,7 +661,7 @@ unsigned char* navXSensor::getBytes() {
 }
 
 basicEncoder::basicEncoder() {
-	setType(1);
+	setType(2);
 	setDataLength(5);
 	this->counts = 0;
 	this->direction = 0;
@@ -694,7 +694,7 @@ unsigned char* basicEncoder::getBytes() {
 }
 
 basicPotentiometer::basicPotentiometer() {
-	setType(2);
+	setType(3);
 	setDataLength(4);
 	this->angle = 0;
 }
@@ -714,7 +714,7 @@ unsigned char* basicPotentiometer::getBytes() {
 }
 
 basicDistance::basicDistance() {
-	setType(3);
+	setType(4);
 	setDataLength(4);
 	this->distance = 0;
 }
@@ -733,7 +733,7 @@ unsigned char* basicDistance::getBytes() {
 }
 
 switchSensor::switchSensor() {
-	setType(4);
+	setType(5);
 	setDataLength(1);
 	this->switchValue = 0;
 }
