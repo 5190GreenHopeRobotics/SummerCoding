@@ -258,6 +258,7 @@ private:
 	unsigned char id;
 	unsigned char stat;
 	unsigned char length;
+	void copySensorField(const sensorInfo& info);
 protected:
 	unsigned char getDataLength() const;
 	void setDataLength(unsigned char length);
@@ -265,6 +266,9 @@ protected:
 	void setType(unsigned char type);
 	virtual unsigned char* getBytes() = 0;
 public:
+    sensorInfo();
+    sensorInfo(const sensorInfo& info);
+    sensorInfo& operator=(const sensorInfo& info);
 	unsigned char getStat() const;
 	void setStat(unsigned char stat);
 	unsigned char getId() const;
@@ -294,10 +298,13 @@ private:
 	void fillTemperature(unsigned char* buf);
 	void fillMagnetometerX(unsigned char* buf);
 	void fillMagnetometerY(unsigned char* buf);
+	void copySensorField(const navXSensor& info);
 protected:
 	unsigned char* getBytes();
 public:
 	navXSensor();
+	navXSensor(const navXSensor& info);
+	sensorInfo& operator=(const navXSensor& info);
 	float getAltitude() const;
 	void setAltitude(float altitude);
 	float getBarometricPressure() const;

@@ -9,7 +9,7 @@ basic package:
 Message Length = the length of message data
 
 Data type:
-Keep State Data (0):
+Keep State Data (1):
 +-----------------------+-----------------------+
 |Status (1Byte)			|sequence (2 Byte int)	|
 +-----------------------+-----------------------+
@@ -24,13 +24,13 @@ Increment by 1 every package.
 Once reached max of 2 byte, reset to 0.
 
 
-Command Data (1):
+Command Data (2):
 
 +---------------------+-------------------------+
 |Command Id(1 Byte)   |Parameter (2 Byte)		|
 +---------------------+-------------------------+
 
-Sensor Datas:
+Sensor Data (3):
 
 +---------------------+-------------------------+
 |Sensor Type(1Byte)   |Sensor Id(1Byte)			|
@@ -53,7 +53,7 @@ Specifics that goes into data segment:
 
 NavX Sensor:
 
-Sensor Type = 0;
+Sensor Type = 1;
 
 The Data Segment:
 
@@ -71,7 +71,7 @@ In the order follow:
 
 Encoder:
 
-Sensor Type = 1;
+Sensor Type = 2;
 
 The Data Segment:
 
@@ -82,7 +82,7 @@ In the order follow:
 
 Potentiometer:
 
-Sensor Type = 2;
+Sensor Type = 3;
 
 The Data Segment:
 
@@ -92,7 +92,7 @@ In the order follow:
 
 A distance measuring sensor:
 
-Sensor Type = 3;
+Sensor Type = 4;
 
 The Data Segment:
 
@@ -102,7 +102,7 @@ In the order follow:
 
 A Switch Type Sensor:
 
-Sensor Type = 4;
+Sensor Type = 5;
 
 The Data Segment:
 

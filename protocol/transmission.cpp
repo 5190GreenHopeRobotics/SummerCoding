@@ -385,6 +385,16 @@ frc5190::vector<transmissionPacket> packetBuffer::getPackets() {
 //							Sensor Info							//
 //////////////////////////////////////////////////////////////////
 
+sensorInfo::sensorInfo()
+{
+    this->id = 0;
+    this->stat = 0;
+}
+
+sensorInfo::sensorInfo(const sensorInfo& info) {
+    copySensorField(info);
+}
+
 unsigned char sensorInfo::getDataLength() const {
 	return length;
 }
@@ -420,6 +430,16 @@ void sensorInfo::setType(unsigned char type) {
 const int16_t sensorInfo::getLength() const {
 	return 4 + getDataLength();
 }
+
+void sensorInfo::copySensorField(const sensorInfo& info) {
+    this->id = info.id;
+    this->stat = info.stat;
+}
+
+sensorInfo& sensorInfo::operator=(const sensorInfo& info) {
+    copySensorField(info);
+}
+
 const unsigned char* sensorInfo::toPacket() {
 	unsigned char dataLength = getDataLength();
 	unsigned char* buffer = new unsigned char[getLength()];
@@ -450,6 +470,30 @@ navXSensor::navXSensor() {
 	this->magnetometerY = 0;
 	this->temperature = 0;
 }
+
+navXSensor::navXSensor(const navXSensor& info)
+: navXSensor()
+{
+    copySensorField(info);
+}
+
+void navXSensor::copySensorField(const navXSensor& info)
+{
+    this->altitude = info.altitude;
+    this->barometricPressure = info.barometricPressure;
+    this->temperature = info.temperature;
+    this->fusedHeading = info.fusedHeading;
+    this->linearAccelX = info.linearAccelX;
+    this->linearAccelY = info.linearAccelY;
+    this->linearAccelZ = info.linearAccelZ;
+    this->magnetometerX = info.magnetometerX;
+    this->magnetometerY = info.magnetometerY;
+}
+
+sensorInfo& navXSensor::operator=(const navXSensor& info) {
+    copySensorField(info);
+}
+
 float navXSensor::getAltitude() const {
 	return altitude;
 }

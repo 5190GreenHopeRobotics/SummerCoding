@@ -7,6 +7,7 @@ long getLongStdin();
 float getFloatStdin();
 int getIntStdin();
 std::string getStringFromStdin();
+unsigned char getUnsignedCharStdin();
 keepStateData getKeepStateDataStdin();
 commandData getCommandDataStdin();
 navXSensor getNavXStdin();

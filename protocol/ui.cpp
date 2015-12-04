@@ -51,23 +51,31 @@ int getIntStdin() {
     return result;
 }
 
+unsigned char getUnsignedCharStdin() {
+    unsigned char result;
+    int buffer = getIntStdin();
+    if(buffer > 255) {
+        return 0;
+    }
+    result = buffer;
+    return result;
+}
+
 void getStatID(sensorInfo& data) {
     unsigned char buf;
     std::cout << "input id:";
-    std::cin >> buf;
+    buf = getUnsignedCharStdin();
     data.setId(buf);
     std::cout << "input status:";
-    std::cin >> buf;
+    buf = getUnsignedCharStdin();
     data.setStat(buf);
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 keepStateData getKeepStateDataStdin() {
     keepStateData result;
     unsigned char state = 0;
     std::cout << "input the state value:";
-    std::cin >> state;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    state = getUnsignedCharStdin();
     result.setState(state);
     std::cout << "input the sequence number:";
     int sequenceData = getIntStdin();
@@ -79,8 +87,8 @@ commandData getCommandDataStdin() {
     commandData result;
     unsigned char command = 0;
     std::cout << "input the command id:";
-    std::cin >> command;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    command = getUnsignedCharStdin();
+    result.setCommand(command);
     std::cout << "input the command parameter:";
     int param = getIntStdin();
     result.setParameter(param);
@@ -127,8 +135,7 @@ basicEncoder getEncoderStdin() {
     unsigned char direction = 0;
     long counts = 0;
     std::cout << "input the encoder direction:";
-    std::cin >> direction;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    direction = getUnsignedCharStdin();
     std::cout << "input the encoder count:";
     counts = getLongStdin();
     enc.setCounts(counts);
@@ -161,8 +168,7 @@ switchSensor getSwitchStdin() {
     getStatID(sws);
     unsigned char state;
     std::cout << "input the switch value:";
-    std::cin >> state;
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    state = getUnsignedCharStdin();
     sws.setSwitchValue(state);
     return sws;
 }
@@ -170,46 +176,52 @@ switchSensor getSwitchStdin() {
 void processCommand(const std::string& command) {
     transmissionPacket buffer;
     binaryFile bin;
+    bool commandExecuted = false;
     std::string fileName;
     if(command == "keepStatePacket") {
         keepStateData ksd = getKeepStateDataStdin();
-        fileName = "keepState.bin";
         buffer.setData(ksd);
+        commandExecuted = true;
     }
     if(command == "commandDataPacket") {
         commandData cmd = getCommandDataStdin();
-        fileName = "commandData.bin";
         buffer.setData(cmd);
+        commandExecuted = true;
     }
     if(command == "navXPacket") {
         navXSensor nvx = getNavXStdin();
-        fileName = "navX.bin";
         buffer.setData(nvx);
+        commandExecuted = true;
     }
     if(command == "encoderPacket") {
         basicEncoder enc = getEncoderStdin();
-        fileName = "encoder.bin";
         buffer.setData(enc);
+        commandExecuted = true;
     }
     if(command == "potPacket") {
         basicPotentiometer pot = getPotStdin();
-        fileName = "pot.bin";
         buffer.setData(pot);
+        commandExecuted = true;
     }
     if(command == "distanceSensorPacket") {
         basicDistance dis = getDistanceStdin();
-        fileName = "distance.bin";
         buffer.setData(dis);
+        commandExecuted = true;
     }
     if(command == "switchPacket") {
         switchSensor switchData = getSwitchStdin();
-        fileName = "switch.bin";
         buffer.setData(switchData);
+        commandExecuted = true;
     }
-    bin.setFilename(fileName);
-    unsigned char* output = buffer.toPacket();
-    bin.write(output,buffer.getLength() + 2);
-    delete[] output;
+    if(commandExecuted) {
+        std::cout << "input a filename to save:";
+        fileName = getStringFromStdin();
+        bin.setFilename(fileName);
+        unsigned char* output = buffer.toPacket();
+        bin.write(output,buffer.getLength() + 2);
+        std::cout << "saved!" << std::endl;
+        delete[] output;
+    }
 }
 
 
