@@ -23,7 +23,11 @@ int16_t bytesToint16_t(const unsigned char* data, int16_t length);
 void int16_tToBytes(const int16_t data, unsigned char* result);
 void swap(unsigned char bytes[2]);
 template<typename T>
-unsigned char* convertToByte(T data);
+unsigned char* convertToByte(T& data);
+
+template<typename T>
+T genericByteToType(unsigned char* data, T& type);
+
 unsigned char* cpyBytes(const unsigned char* bytes, const int16_t length);
 void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
 		const int16_t end);
@@ -258,8 +262,8 @@ private:
 	unsigned char id;
 	unsigned char stat;
 	unsigned char length;
-	void copySensorField(const sensorInfo& info);
 protected:
+    void copySensorField(const sensorInfo& info);
 	unsigned char getDataLength() const;
 	void setDataLength(unsigned char length);
 	unsigned char getType() const;
@@ -304,7 +308,7 @@ protected:
 public:
 	navXSensor();
 	navXSensor(const navXSensor& info);
-	sensorInfo& operator=(const navXSensor& info);
+	navXSensor& operator=(const navXSensor& info);
 	float getAltitude() const;
 	void setAltitude(float altitude);
 	float getBarometricPressure() const;
@@ -331,8 +335,11 @@ private:
 	unsigned char direction;
 protected:
 	unsigned char* getBytes();
+	void copySensorField(const basicEncoder& info);
 public:
+    basicEncoder(const basicEncoder& src);
 	basicEncoder();
+	basicEncoder& operator=(const basicEncoder& src);
 	long getCounts() const;
 	void setCounts(long counts);
 	unsigned char getDirection() const;
@@ -344,8 +351,11 @@ private:
 	float angle;
 protected:
 	unsigned char* getBytes();
+	void copySensorField(const basicPotentiometer& src);
 public:
+    basicPotentiometer(const basicPotentiometer& src);
 	basicPotentiometer();
+	basicPotentiometer& operator=(const basicPotentiometer& src);
 	float getAngle() const;
 	void setAngle(float angle);
 };
@@ -355,8 +365,11 @@ private:
 	float distance;
 protected:
 	unsigned char* getBytes();
+	void copySensorField(const basicDistance& src);
 public:
 	basicDistance();
+	basicDistance(const basicDistance& src);
+	basicDistance& operator=(const basicDistance& src);
 	float getDistance() const;
 	void setDistance(float distance);
 };
@@ -366,8 +379,11 @@ private:
 	unsigned char switchValue;
 protected:
 	unsigned char* getBytes();
+	void copySensorField(const switchSensor& src);
 public:
+    switchSensor(const switchSensor& src);
 	switchSensor();
+	switchSensor& operator=(const switchSensor& src);
 	unsigned char getSwitchValue() const;
 	void setSwitchValue(unsigned char switchValue);
 };
@@ -412,7 +428,7 @@ public:
 };
 
 template<typename T>
-unsigned char* convertToByte(T data) {
+unsigned char* convertToByte(T& data) {
 	unsigned char* buf = new unsigned char[sizeof(data)];
 	union {
 		T d;
@@ -423,5 +439,17 @@ unsigned char* convertToByte(T data) {
 		buf[i] = converter.array[i];
 	}
 	return buf;
+}
+
+template<typename T>
+T genericByteToType(unsigned char* data, T& type) {
+    union {
+        T result;
+        unsigned char array[sizeof(type)];
+    } converter;
+    for(int i=0;i<sizeof(type);++i) {
+        converter.array[i] = data[i];
+    }
+    return converter.result;
 }
 #endif /* TRANSMISSION_H_ */

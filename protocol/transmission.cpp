@@ -438,6 +438,7 @@ void sensorInfo::copySensorField(const sensorInfo& info) {
 
 sensorInfo& sensorInfo::operator=(const sensorInfo& info) {
     copySensorField(info);
+    return *this;
 }
 
 const unsigned char* sensorInfo::toPacket() {
@@ -479,6 +480,7 @@ navXSensor::navXSensor(const navXSensor& info)
 
 void navXSensor::copySensorField(const navXSensor& info)
 {
+    sensorInfo::copySensorField(info);
     this->altitude = info.altitude;
     this->barometricPressure = info.barometricPressure;
     this->temperature = info.temperature;
@@ -490,8 +492,9 @@ void navXSensor::copySensorField(const navXSensor& info)
     this->magnetometerY = info.magnetometerY;
 }
 
-sensorInfo& navXSensor::operator=(const navXSensor& info) {
-    copySensorField(info);
+navXSensor& navXSensor::operator=(const navXSensor& info) {
+    this->copySensorField(*this);
+    return *this;
 }
 
 float navXSensor::getAltitude() const {
@@ -667,6 +670,23 @@ basicEncoder::basicEncoder() {
 	this->direction = 0;
 }
 
+basicEncoder::basicEncoder(const basicEncoder& info)
+: basicEncoder()
+{
+    copySensorField(info);
+}
+
+basicEncoder& basicEncoder::operator=(const basicEncoder& src) {
+    copySensorField(src);
+    return *this;
+}
+
+void basicEncoder::copySensorField(const basicEncoder& info) {
+    sensorInfo::copySensorField(info);
+    this->counts = info.counts;
+    this->direction = info.direction;
+}
+
 long basicEncoder::getCounts() const {
 	return counts;
 }
@@ -699,6 +719,22 @@ basicPotentiometer::basicPotentiometer() {
 	this->angle = 0;
 }
 
+basicPotentiometer::basicPotentiometer(const basicPotentiometer& src)
+: basicPotentiometer()
+{
+    copySensorField(src);
+}
+
+basicPotentiometer& basicPotentiometer::operator=(const basicPotentiometer& src) {
+    copySensorField(src);
+    return *this;
+}
+
+void basicPotentiometer::copySensorField(const basicPotentiometer& src) {
+    sensorInfo::copySensorField(src);
+    this->angle = src.angle;
+}
+
 float basicPotentiometer::getAngle() const {
 	return angle;
 }
@@ -718,6 +754,23 @@ basicDistance::basicDistance() {
 	setDataLength(4);
 	this->distance = 0;
 }
+
+basicDistance::basicDistance(const basicDistance& src)
+: basicDistance()
+{
+    copySensorField(src);
+}
+
+void basicDistance::copySensorField(const basicDistance& src) {
+    sensorInfo::copySensorField(src);
+    this->distance = src.distance;
+}
+
+basicDistance& basicDistance::operator=(const basicDistance& src) {
+    sensorInfo::copySensorField(src);
+    return *this;
+}
+
 float basicDistance::getDistance() const {
 	return distance;
 }
@@ -736,6 +789,22 @@ switchSensor::switchSensor() {
 	setType(5);
 	setDataLength(1);
 	this->switchValue = 0;
+}
+
+switchSensor::switchSensor(const switchSensor& src)
+: switchSensor()
+{
+    copySensorField(src);
+}
+
+switchSensor& switchSensor::operator=(const switchSensor& src) {
+    copySensorField(src);
+    return *this;
+}
+
+void switchSensor::copySensorField(const switchSensor& src) {
+    sensorInfo::copySensorField(src);
+    this->switchValue = src.switchValue;
 }
 
 unsigned char switchSensor::getSwitchValue() const {
