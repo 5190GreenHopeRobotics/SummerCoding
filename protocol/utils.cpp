@@ -15,19 +15,16 @@ binaryFile::binaryFile(std::string& fn) {
 	this->filename = fn;
 }
 
-binaryFile::binaryFile(std::string&& fn) {
-	this->filename = fn;
-}
 
 void binaryFile::write(const unsigned char* byte, int size) {
-	std::ofstream of(filename,std::ofstream::out | std::ofstream::binary);
+	std::ofstream of(filename.c_str(),std::ofstream::out | std::ofstream::binary);
 	of.write((const char*) byte, size);
 	of.flush();
 	of.close();
 }
 
 unsigned char* binaryFile::read() {
-	std::ifstream input(filename,std::ifstream::in | std::ifstream::binary);
+	std::ifstream input(filename.c_str(),std::ifstream::in | std::ifstream::binary);
 	std::vector<unsigned char> buffer;
 	while(true) {
 		unsigned char buf;

@@ -14,7 +14,6 @@ class binaryFile {
 public:
 	binaryFile(std::string& fn);
 	binaryFile();
-	binaryFile(std::string&& fn);
 	void write(const unsigned char* byte, int size);
 	unsigned char* read();
 	std::string getFilename() const;

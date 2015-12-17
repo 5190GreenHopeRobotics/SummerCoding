@@ -380,6 +380,7 @@ frc5190::vector<transmissionPacket> packetBuffer::getPackets() {
 		b.append(interpretRawData(temp));
 		delete[] temp;
 	}
+	return b;
 }
 //////////////////////////////////////////////////////////////////
 //							Sensor Info							//

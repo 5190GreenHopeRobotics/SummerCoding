@@ -8,9 +8,7 @@
 #ifndef TRANSMISSION_H_
 #define TRANSMISSION_H_
 #include "vector.h"
-#ifdef COMPUTER
-#include <cstdint>
-#endif // COMPUTER
+#include "stdint.h"
 #ifndef nullptr
 #define nullptr 0
 #endif
@@ -435,7 +433,7 @@ unsigned char* convertToByte(T& data) {
 		unsigned char array[sizeof(data)];
 	} converter;
 	converter.d = data;
-	for (int16_t i = 0; i < sizeof(data); ++i) {
+	for (int i = 0; i < sizeof(data); ++i) {
 		buf[i] = converter.array[i];
 	}
 	return buf;
