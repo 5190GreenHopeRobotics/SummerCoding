@@ -15,27 +15,28 @@ binaryFile::binaryFile(std::string& fn) {
 	this->filename = fn;
 }
 
-
 void binaryFile::write(const unsigned char* byte, int size) {
-	std::ofstream of(filename.c_str(),std::ofstream::out | std::ofstream::binary);
+	std::ofstream of(filename.c_str(),
+			std::ofstream::out | std::ofstream::binary);
 	of.write((const char*) byte, size);
 	of.flush();
 	of.close();
 }
 
 unsigned char* binaryFile::read() {
-	std::ifstream input(filename.c_str(),std::ifstream::in | std::ifstream::binary);
+	std::ifstream input(filename.c_str(),
+			std::ifstream::in | std::ifstream::binary);
 	std::vector<unsigned char> buffer;
-	while(true) {
+	while (true) {
 		unsigned char buf;
 		input >> std::noskipws >> buf;
 		buffer.push_back(buf);
-		if(input.eof()) {
+		if (input.eof()) {
 			break;
 		}
 	}
 	unsigned char* result = new unsigned char[buffer.size()];
-	for(int i=0;i<buffer.size();++i) {
+	for (unsigned int i = 0; i < buffer.size(); ++i) {
 		result[i] = buffer[i];
 	}
 	return result;
@@ -48,6 +49,4 @@ std::string binaryFile::getFilename() const {
 void binaryFile::setFilename(std::string& filename) {
 	this->filename = filename;
 }
-
-
 

@@ -43,15 +43,15 @@ unsigned char* cpyBytes(const unsigned char* bytes, const int16_t length) {
 	return buf;
 }
 
-void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
-		const int16_t end) {
+void cpyBytes(unsigned char* target, const unsigned char* src,
+		const int16_t start, const int16_t end) {
 	for (int16_t i = start; i < end; ++i) {
 		target[i] = src[i];
 	}
 }
 
-void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
-		const int16_t end, const int16_t size) {
+void cpyBytes(unsigned char* target, const unsigned char* src,
+		const int16_t start, const int16_t end, const int16_t size) {
 	for (int16_t i = start, j = 0; i < end, j < size; ++i, ++j) {
 		target[i] = src[j];
 	}
@@ -203,7 +203,7 @@ unsigned char keepStateData::getState() const {
 }
 
 void keepStateData::setSequence(const int16_t sequence) {
-    int16_tToBytes(sequence, this->sequence);
+	int16_tToBytes(sequence, this->sequence);
 }
 
 const int16_t keepStateData::getSequence() const {
@@ -309,7 +309,7 @@ keepStateData interpreter::interpretStatSeq(const transmissionPacket& tp) {
 	sequenceBuffer[0] = buf[1];
 	sequenceBuffer[1] = buf[2];
 	swap(sequenceBuffer);
-	ksd.setSequence(bytesToint16_t(sequenceBuffer,2));
+	ksd.setSequence(bytesToint16_t(sequenceBuffer, 2));
 	delete[] buf;
 	delete[] sequenceBuffer;
 	return ksd;
@@ -371,7 +371,7 @@ unsigned char* packetBuffer::getNext() {
 
 frc5190::vector<transmissionPacket> packetBuffer::getPackets() {
 	unsigned char* temp;
-	frc5190::vector<transmissionPacket> b;
+	frc5190::vector < transmissionPacket > b;
 	while (true) {
 		temp = getNext();
 		if (temp == nullptr) {
@@ -386,14 +386,15 @@ frc5190::vector<transmissionPacket> packetBuffer::getPackets() {
 //							Sensor Info							//
 //////////////////////////////////////////////////////////////////
 
-sensorInfo::sensorInfo()
-{
-    this->id = 0;
-    this->stat = 0;
+sensorInfo::sensorInfo() {
+	this->id = 0;
+	this->stat = 0;
+	this->length = 0;
+	this->type = -1;
 }
 
 sensorInfo::sensorInfo(const sensorInfo& info) {
-    copySensorField(info);
+	copySensorField(info);
 }
 
 unsigned char sensorInfo::getDataLength() const {
@@ -433,17 +434,16 @@ const int16_t sensorInfo::getLength() const {
 }
 
 void sensorInfo::copySensorField(const sensorInfo& info) {
-    this->id = info.id;
-    this->stat = info.stat;
+	this->id = info.id;
+	this->stat = info.stat;
 }
 
 sensorInfo& sensorInfo::operator=(const sensorInfo& info) {
-    copySensorField(info);
-    return *this;
+	copySensorField(info);
+	return *this;
 }
 
 const unsigned char* sensorInfo::toPacket() {
-	unsigned char dataLength = getDataLength();
 	unsigned char* buffer = new unsigned char[getLength()];
 	unsigned char* data = getBytes();
 	cpyBytes(buffer, data, 4, getLength(), getDataLength());
@@ -473,29 +473,27 @@ navXSensor::navXSensor() {
 	this->temperature = 0;
 }
 
-navXSensor::navXSensor(const navXSensor& info)
-: navXSensor()
-{
-    copySensorField(info);
+navXSensor::navXSensor(const navXSensor& info) :
+		navXSensor() {
+	copySensorField(info);
 }
 
-void navXSensor::copySensorField(const navXSensor& info)
-{
-    sensorInfo::copySensorField(info);
-    this->altitude = info.altitude;
-    this->barometricPressure = info.barometricPressure;
-    this->temperature = info.temperature;
-    this->fusedHeading = info.fusedHeading;
-    this->linearAccelX = info.linearAccelX;
-    this->linearAccelY = info.linearAccelY;
-    this->linearAccelZ = info.linearAccelZ;
-    this->magnetometerX = info.magnetometerX;
-    this->magnetometerY = info.magnetometerY;
+void navXSensor::copySensorField(const navXSensor& info) {
+	sensorInfo::copySensorField(info);
+	this->altitude = info.altitude;
+	this->barometricPressure = info.barometricPressure;
+	this->temperature = info.temperature;
+	this->fusedHeading = info.fusedHeading;
+	this->linearAccelX = info.linearAccelX;
+	this->linearAccelY = info.linearAccelY;
+	this->linearAccelZ = info.linearAccelZ;
+	this->magnetometerX = info.magnetometerX;
+	this->magnetometerY = info.magnetometerY;
 }
 
 navXSensor& navXSensor::operator=(const navXSensor& info) {
-    this->copySensorField(*this);
-    return *this;
+	this->copySensorField(*this);
+	return *this;
 }
 
 float navXSensor::getAltitude() const {
@@ -671,21 +669,20 @@ basicEncoder::basicEncoder() {
 	this->direction = 0;
 }
 
-basicEncoder::basicEncoder(const basicEncoder& info)
-: basicEncoder()
-{
-    copySensorField(info);
+basicEncoder::basicEncoder(const basicEncoder& info) :
+		basicEncoder() {
+	copySensorField(info);
 }
 
 basicEncoder& basicEncoder::operator=(const basicEncoder& src) {
-    copySensorField(src);
-    return *this;
+	copySensorField(src);
+	return *this;
 }
 
 void basicEncoder::copySensorField(const basicEncoder& info) {
-    sensorInfo::copySensorField(info);
-    this->counts = info.counts;
-    this->direction = info.direction;
+	sensorInfo::copySensorField(info);
+	this->counts = info.counts;
+	this->direction = info.direction;
 }
 
 long basicEncoder::getCounts() const {
@@ -720,20 +717,20 @@ basicPotentiometer::basicPotentiometer() {
 	this->angle = 0;
 }
 
-basicPotentiometer::basicPotentiometer(const basicPotentiometer& src)
-: basicPotentiometer()
-{
-    copySensorField(src);
+basicPotentiometer::basicPotentiometer(const basicPotentiometer& src) :
+		basicPotentiometer() {
+	copySensorField(src);
 }
 
-basicPotentiometer& basicPotentiometer::operator=(const basicPotentiometer& src) {
-    copySensorField(src);
-    return *this;
+basicPotentiometer& basicPotentiometer::operator=(
+		const basicPotentiometer& src) {
+	copySensorField(src);
+	return *this;
 }
 
 void basicPotentiometer::copySensorField(const basicPotentiometer& src) {
-    sensorInfo::copySensorField(src);
-    this->angle = src.angle;
+	sensorInfo::copySensorField(src);
+	this->angle = src.angle;
 }
 
 float basicPotentiometer::getAngle() const {
@@ -756,20 +753,19 @@ basicDistance::basicDistance() {
 	this->distance = 0;
 }
 
-basicDistance::basicDistance(const basicDistance& src)
-: basicDistance()
-{
-    copySensorField(src);
+basicDistance::basicDistance(const basicDistance& src) :
+		basicDistance() {
+	copySensorField(src);
 }
 
 void basicDistance::copySensorField(const basicDistance& src) {
-    sensorInfo::copySensorField(src);
-    this->distance = src.distance;
+	sensorInfo::copySensorField(src);
+	this->distance = src.distance;
 }
 
 basicDistance& basicDistance::operator=(const basicDistance& src) {
-    sensorInfo::copySensorField(src);
-    return *this;
+	sensorInfo::copySensorField(src);
+	return *this;
 }
 
 float basicDistance::getDistance() const {
@@ -792,20 +788,19 @@ switchSensor::switchSensor() {
 	this->switchValue = 0;
 }
 
-switchSensor::switchSensor(const switchSensor& src)
-: switchSensor()
-{
-    copySensorField(src);
+switchSensor::switchSensor(const switchSensor& src) :
+		switchSensor() {
+	copySensorField(src);
 }
 
 switchSensor& switchSensor::operator=(const switchSensor& src) {
-    copySensorField(src);
-    return *this;
+	copySensorField(src);
+	return *this;
 }
 
 void switchSensor::copySensorField(const switchSensor& src) {
-    sensorInfo::copySensorField(src);
-    this->switchValue = src.switchValue;
+	sensorInfo::copySensorField(src);
+	this->switchValue = src.switchValue;
 }
 
 unsigned char switchSensor::getSwitchValue() const {

@@ -27,8 +27,8 @@ template<typename T>
 T genericByteToType(unsigned char* data, T& type);
 
 unsigned char* cpyBytes(const unsigned char* bytes, const int16_t length);
-void cpyBytes(unsigned char* target, const unsigned char* src, const int16_t start,
-		const int16_t end);
+void cpyBytes(unsigned char* target, const unsigned char* src,
+		const int16_t start, const int16_t end);
 void cpyBytes(unsigned char* target, const unsigned char* src,
 		const int16_t start, const int16_t end, const int16_t size);
 void endianConverter(unsigned char* data, const int16_t length);
@@ -261,16 +261,16 @@ private:
 	unsigned char stat;
 	unsigned char length;
 protected:
-    void copySensorField(const sensorInfo& info);
+	void copySensorField(const sensorInfo& info);
 	unsigned char getDataLength() const;
 	void setDataLength(unsigned char length);
 	unsigned char getType() const;
 	void setType(unsigned char type);
 	virtual unsigned char* getBytes() = 0;
 public:
-    sensorInfo();
-    sensorInfo(const sensorInfo& info);
-    sensorInfo& operator=(const sensorInfo& info);
+	sensorInfo();
+	sensorInfo(const sensorInfo& info);
+	sensorInfo& operator=(const sensorInfo& info);
 	unsigned char getStat() const;
 	void setStat(unsigned char stat);
 	unsigned char getId() const;
@@ -335,7 +335,7 @@ protected:
 	unsigned char* getBytes();
 	void copySensorField(const basicEncoder& info);
 public:
-    basicEncoder(const basicEncoder& src);
+	basicEncoder(const basicEncoder& src);
 	basicEncoder();
 	basicEncoder& operator=(const basicEncoder& src);
 	long getCounts() const;
@@ -351,7 +351,7 @@ protected:
 	unsigned char* getBytes();
 	void copySensorField(const basicPotentiometer& src);
 public:
-    basicPotentiometer(const basicPotentiometer& src);
+	basicPotentiometer(const basicPotentiometer& src);
 	basicPotentiometer();
 	basicPotentiometer& operator=(const basicPotentiometer& src);
 	float getAngle() const;
@@ -379,7 +379,7 @@ protected:
 	unsigned char* getBytes();
 	void copySensorField(const switchSensor& src);
 public:
-    switchSensor(const switchSensor& src);
+	switchSensor(const switchSensor& src);
 	switchSensor();
 	switchSensor& operator=(const switchSensor& src);
 	unsigned char getSwitchValue() const;
@@ -433,7 +433,7 @@ unsigned char* convertToByte(T& data) {
 		unsigned char array[sizeof(data)];
 	} converter;
 	converter.d = data;
-	for (int i = 0; i < sizeof(data); ++i) {
+	for (unsigned int i = 0; i < sizeof(data); ++i) {
 		buf[i] = converter.array[i];
 	}
 	return buf;
@@ -441,13 +441,13 @@ unsigned char* convertToByte(T& data) {
 
 template<typename T>
 T genericByteToType(unsigned char* data, T& type) {
-    union {
-        T result;
-        unsigned char array[sizeof(type)];
-    } converter;
-    for(int i=0;i<sizeof(type);++i) {
-        converter.array[i] = data[i];
-    }
-    return converter.result;
+	union {
+		T result;
+		unsigned char array[sizeof(type)];
+	} converter;
+	for (int i = 0; i < sizeof(type); ++i) {
+		converter.array[i] = data[i];
+	}
+	return converter.result;
 }
 #endif /* TRANSMISSION_H_ */
